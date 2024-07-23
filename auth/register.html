@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .error {
+            color: red;
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            margin-bottom: 10px;
+        }
+
+        .notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .notification.show {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification.hide {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+        }
+
+        input[type='button'],
+        button {
+            font-size: 18px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #tomain {
+            margin-top: 20px;
+            background-color: #6c757d;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+
+            input[type='button'],
+            button {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 100%;
+                padding: 10px;
+                box-shadow: none;
+            }
+
+            input[type='button'],
+            button {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Регистрация</h1>
+        <input type="button" id="tomain" value="На главную"></input>
+        <div id="message" class="error"></div>
+        <form id="form">
+            <input type="text" name="username" id="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit" id="submit">Регистрация</button>
+            <div id="error" class="error">Логин не может быть длиннее 100 символов.</div>
+            <br>
+            <a href="login.html">Уже есть аккаунт</a>
+        </form>
+        <div id="notification" class="notification">Регистрация прошла успешно!</div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('tomain').addEventListener('click', function () { window.location.href = '../index.html'; });
+            document.getElementById('form').addEventListener('submit', function (event) {
+                const username = document.getElementById('username');
+                const errorDiv = document.getElementById('error');
+                if (username.value.length > 100) {
+                    event.preventDefault(); 
+                    errorDiv.style.display = 'block';
+                    event.target.reset();
+                    return;
+                } else {
+                    errorDiv.style.display = 'none';
+                }
+                event.preventDefault();
+                const formData = new FormData(this);
+
+                fetch('register.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const messageElement = document.getElementById('message');
+                        if (data.success) {
+                            document.getElementById('submit').disabled = true;
+                            document.getElementById('tomain').disabled = true;
+                            localStorage.setItem('userId', data['data']['userId']);
+                            localStorage.setItem('userName', data['data']['userName']);
+                            const notification = document.getElementById('notification');
+                            notification.classList.add('show');
+                            setTimeout(() => {
+                                notification.classList.add('hide');
+                            }, 1500);
+                            setTimeout(() => {
+                                notification.classList.remove('show');
+                                notification.classList.remove('hide');
+                                window.location.href = '../index.html';
+                            }, 1500);
+                        } else {
+                            messageElement.innerHTML = data.message;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        })
+    </script>
+</body>
+
+</html>

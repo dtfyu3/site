@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+  <link rel="stylesheet" href="./styles.css">
+  <title>Мой сайт!</title>
+</head>
+
+<body>
+  <input name="post" type="button" value="Написать" id="openModal"></input>
+  <input type="button" class="register" id="register" value="Регистрация/Вход" style="display: none;"></input>
+  <span id="count">Кол-во постов: <span id="post_count"></span></span>
+  <div id="pagination_container">
+    <ul id="pagination" class="pagination"></ul>
+  </div>
+  <ul class="cards">
+  </ul>
+  <div class="comments_section hidden" id="comments_section"><span>Комментарии</span>
+    <div class="comments_actions">
+      <textarea class="comment_input" placeholder="Введите комментарий" id="comment_input"></textarea>
+      <input type="submit" class="submit_comment" value="Отправить" id="submit_comment"></input>
+    </div>
+    <ul class="comments_list" id="comments_list"></ul>
+  </div>
+  <br>
+  <div class="modal">
+    <div class="modal_content">
+      <form name="putPost" onsubmit="return false;">
+        <textarea id="text" rows="7" placeholder="Напишите что-нибудь" name="text"></textarea>
+        <input type="submit" value="Отправить">
+        <span id="closeModal">&times</span>
+        <div class="error" id="error"></div>
+      </form>
+    </div>
+  </div>
+  <div id="notification" class="notification">Сообщение успешно отправлено!</div>
+  <div class="profile" id="profile" style="display: none;">
+    <div class="avatar"><img loading="lazy" id="avatarIcon"></div>
+    <div class="username" id="username"><span></span></div>
+    <input type="button" value="Выйти" id="logout"></input>
+  </div>
+
+  <div class="warning" id="warning" style="display: none;"><span>Зарегистрируйтесь, чтобы оставлять реакции и
+      записи!</span></div>
+  <script src="script.js"></script>
+</body>
+
+</html>
