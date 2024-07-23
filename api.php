@@ -165,8 +165,10 @@ function getComments($card_id)
     $conn = getDbConnection();
     $stmt = $conn->prepare('select c.id, name as author, content, date, score,vote_type as user_vote 
 from comments c 
-left join users on c.user_id = users.id left join card_comments on card_id = ?
+left join users on c.user_id = users.id 
+left join card_comments cc on card_id = cc.card_id
 left join comments_votes cv on cv.user_id = users.id and cv.comment_id = c.id
+where cc.card_id = ?
 order by date desc');
     $stmt->bind_param('i', $card_id);
     if ($stmt->execute()) {

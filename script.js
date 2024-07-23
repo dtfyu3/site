@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.style.display = "none";
     }
     async function fetchPosts(page = 1) {
+        container.innerHTML = '';
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
@@ -173,15 +174,18 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchPosts(currentPage);
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
-        container.innerHTML = '';
-        container.appendChild(card);
         if (!isCommentOpen) {
             isCommentOpen = true;
+            container.innerHTML = '';
+            container.appendChild(card);
             fetchComments(card.dataset['id']);
             document.getElementById('comments_section').classList.remove('hidden');
+            comments_list.classList.remove('hidden');
         }
         else {
             isCommentOpen = false;
+            comments_list.innerHTML = '';
+            document.getElementById('comments_section').classList.add('hidden');
             fetchPosts(currentPage);
         }
     };
@@ -240,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         else { button.setAttribute('data-voted', 'true') }
         const xhr = new XMLHttpRequest();
-        if (ul.className !=='comments_list') {
+        if (ul.className !== 'comments_list') {
             xhr.open('POST', 'api.php?get_action=update', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify({
