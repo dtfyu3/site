@@ -93,7 +93,9 @@
             margin-top: 20px;
             background-color: #6c757d;
         }
-
+        .disabled:hover{
+            cursor:not-allowed;
+        }
         h1 {
             margin-bottom: 20px;
         }
@@ -169,8 +171,12 @@
                     .then(data => {
                         const messageElement = document.getElementById('message');
                         if (data.success) {
-                            document.getElementById('submit').disabled = true;
-                            document.getElementById('tomain').disabled = true;
+                            const submit = document.getElementById('submit');
+                            const tomain = document.getElementById('tomain');
+                            submit.disabled = true;
+                            submit.classList.add('disabled');
+                            tomain.disabled = true;
+                            tomain.classList.add('disabled');
                             localStorage.setItem('userId', data['data']['userId']);
                             localStorage.setItem('userName', data['data']['userName']);
                             const notification = document.getElementById('notification');

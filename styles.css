@@ -37,7 +37,7 @@ li:last-child .card {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     height: auto;
-    width: fit-content;
+    width: 20vw;
     max-width: 20vw;
     min-width: 300px;
     padding: 10px;
@@ -142,7 +142,7 @@ li:last-child .card {
     font-size: 20px;
     padding: 5px 10px;
     border: none;
-    background-color: white;
+    background-color: transparent;
     cursor: pointer;
 }
 
@@ -160,6 +160,9 @@ hr {
     width: fit-content;
     display: inline-block;
     text-align: left;
+}
+.comments_list .info{
+    flex: 2;
 }
 
 .author, .date {
@@ -562,6 +565,9 @@ input[type='submit'] {
     #register {
         margin-top: 10px;
         width: 80vw;
+    }
+    #openModal{
+        width: 50vw;
     }
     .comments_section {
         margin-left: 10px;

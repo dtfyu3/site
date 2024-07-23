@@ -113,14 +113,19 @@ document.addEventListener('DOMContentLoaded', function () {
         let messageButton;
         let res = parseFloat(post.score) / parseFloat(post.total_votes);
         let spanClass = '';
-        if (res > 0.5) spanClass = 'positive';
-        else if (res < 0.5) spanClass = 'negative';
-        else { spanClass = '' };
-        if (isComment) messageButton = '';
-        else messageButton = f ? `<td><button class="message"><img class="icon" src="images/message.png"></button></td>` : '';
+        let comment_counter = '';
+        let comment_count = '';
+        if (!isComment) {
+            comment_counter = post.comment_count;
+            comment_count = `<td class="comment_count"><span>${comment_counter}</span></td>`;
+            if (res > 0.5) spanClass = 'positive';
+            else if (res < 0.5) spanClass = 'negative';
+            else { spanClass = '' };
+            messageButton = f ? `<td><button class="message"><img class="icon" src="images/message.png"></button></td>` : '';
+        }
+        if (isComment)messageButton = '';
         let upvoteButton = f ? `<td><button class="upvote" data-voted= ${post.user_vote === "upvote"}><img class="icon" src="images/angle-up.png"></button></td>` : '';
         let downvoteButton = f ? `<td><button class="downvote" data-voted= ${post.user_vote === "downvote"}><img class="icon" src="images/angle-down.png"></button></td>` : '';
-        // let comment_section = f ? '<div class="comment_section"><div class="comments_list"></div><textarea class="comment_input" placeholder="Введите комментарий"></textarea><input type="submit" class="submit_comment" value="Отправить"></input></div>' : '';
         li.innerHTML = `
             <div class="card" data-id="${post.id}" data-score="${post.score}" data-total_votes="${post.total_votes}">
                 <div class="author"><span>${post.author}</span></div>
@@ -130,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="info"><span class="date">${post.date}</span></div>
                     <table class="actions">
                         <tr>
-                            <td class="comment_count"><span>${post.comment_count}</span></td>
+                            ${comment_count}
                             ${messageButton}
                             ${upvoteButton}
                             <td class="score"><span class="${spanClass}">${post.score}</span></td>
@@ -195,8 +200,8 @@ document.addEventListener('DOMContentLoaded', function () {
             submit.addEventListener('click', putPost)
         );
         const sp = document.querySelectorAll('.score span');
-        document.querySelectorAll('.score span').forEach(span => 
-            span.addEventListener('oncnahge',handleScoreChange)
+        document.querySelectorAll('.score span').forEach(span =>
+            span.addEventListener('oncnahge', handleScoreChange)
         );
     }
     fetchPosts(currentPage);
