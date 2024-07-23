@@ -48,6 +48,9 @@ li:last-child .card {
     justify-content: space-between;
     align-items: center;
 }
+.message_count{
+    padding: 0px;
+}
 .comments_section {
     margin: 0 auto;
     margin-top: 20px;
@@ -153,7 +156,7 @@ hr {
 }
 
 .info {
-    flex: 2;
+    flex: 1;
     width: fit-content;
     display: inline-block;
     text-align: left;
@@ -173,9 +176,10 @@ hr {
 .actions {
     flex: 1;
     width: fit-content;
-    display: table;
 }
-
+.actions button{
+    padding: 0px;
+}
 table {
     table-layout: auto;
     border-collapse: collapse;
@@ -189,7 +193,10 @@ table {
 td {
     padding: 8px;
 }
-
+tr{
+    display: flex;
+    justify-content: space-between;
+}
 button {
     margin: 0 auto;
     padding: 8px 16px;
@@ -216,10 +223,15 @@ img.icon {
     height: 20px;
 }
 
-.score {
-    padding-bottom: 5px;
+.score, .comment_count {
+    vertical-align: middle;
 }
-
+.positive{
+    color: #4CAF50;
+}
+.negative{
+    color: #8b1515;
+}
 button img.icon {
     transition: transform 0.2s ease, filter 0.2s ease;
 }

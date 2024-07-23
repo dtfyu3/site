@@ -21,12 +21,14 @@ function getPosts($user_id = null, $page = 1)
     $start = ($page - 1) * $limit;
     $limit = 10 * $page;
     if ($user_id != null) {
-        $sql = "select cards.id, name as author, date, content, score, vote_type as user_vote from cards
-        inner join users
-        on users.id = cards.author
+        $sql = "select cards.id, name as author, date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count,
+        (select count(*) from user_votes u where u.card_id = cards.id) as total_votes
+        from cards inner join users on users.id = cards.author
         left join user_votes on cards.id = user_votes.card_id and user_votes.user_id = ?
         order by date desc limit ?, ?";
-    } else $sql = 'select cards.id, name as author, date, content, score from cards inner join users on users.id = cards.author order by date desc limit ?, ?';
+    } else $sql = 'select cards.id, name as author, date, content, score, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count, 
+     (select count(*) from user_votes u where u.card_id = cards.id) as total_votes 
+    from cards inner join users on users.id = cards.author order by date desc limit ?, ?';
     $posts = array();
 
     $response = ['success' => false];
@@ -44,7 +46,9 @@ function getPosts($user_id = null, $page = 1)
                 'content' => $row['content'],
                 'date' => $row['date'],
                 'score' => $row['score'],
-                'user_vote' => isset($row['user_vote']) ? $row['user_vote'] : null
+                'user_vote' => isset($row['user_vote']) ? $row['user_vote'] : null,
+                'comment_count' => $row['comment_count'],
+                'total_votes' => $row['total_votes']
             ];
         }
         $response['success'] = true;
@@ -219,11 +223,6 @@ if ($get_action != null) {
         putPost(intval($data['user_id']), $data['content']);
     } elseif ($get_action == 'getComments' && isset($data['card_id'])) {
         getComments($data['card_id']);
-    } elseif ($get_action == 'update' && isset($data['comment_id'])) {
-        $user_id = intval($data['user_id']);
-        $comment_id = intval($data['comment_id']);
-        $action = $data['action'];
-        updateComment($user_id, $comment_id, $action);
     } else {
         $response = ['error' => 'Invalid action'];
         echo json_encode($response);

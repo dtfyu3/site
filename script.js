@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const page = document.querySelector('#pagination a');
     const count = document.getElementById('post_count')
     const avatarIcon = document.getElementById('avatarIcon');
-    // document.getElementById('comment_section').remove();
+
     if (window.localStorage.getItem("userId") && window.localStorage.getItem("userName")) {
         userId = window.localStorage.getItem("userId");
         register.remove();
@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('profile').remove();
         open_modal.remove();
     }
-    // container.addEventListener('change', HandleCardsChange);
     open_modal.addEventListener('click', openModal);
     close_modal.addEventListener('click', closeModal);
     register.addEventListener('click', handleRegister);
@@ -112,13 +111,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const li = document.createElement('li');
         let f = window.localStorage.getItem('userId') ? true : false;
         let messageButton;
+        let res = parseFloat(post.score) / parseFloat(post.total_votes);
+        let spanClass = '';
+        if (res > 0.5) spanClass = 'positive';
+        else if (res < 0.5) spanClass = 'negative';
+        else { spanClass = '' };
         if (isComment) messageButton = '';
         else messageButton = f ? `<td><button class="message"><img class="icon" src="images/message.png"></button></td>` : '';
         let upvoteButton = f ? `<td><button class="upvote" data-voted= ${post.user_vote === "upvote"}><img class="icon" src="images/angle-up.png"></button></td>` : '';
         let downvoteButton = f ? `<td><button class="downvote" data-voted= ${post.user_vote === "downvote"}><img class="icon" src="images/angle-down.png"></button></td>` : '';
         // let comment_section = f ? '<div class="comment_section"><div class="comments_list"></div><textarea class="comment_input" placeholder="Введите комментарий"></textarea><input type="submit" class="submit_comment" value="Отправить"></input></div>' : '';
         li.innerHTML = `
-            <div class="card" data-id="${post.id}">
+            <div class="card" data-id="${post.id}" data-score="${post.score}" data-total_votes="${post.total_votes}">
                 <div class="author"><span>${post.author}</span></div>
                 <div class="content"><span>${post.content}</span></div>
                 <hr />
@@ -126,9 +130,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="info"><span class="date">${post.date}</span></div>
                     <table class="actions">
                         <tr>
+                            <td class="comment_count"><span>${post.comment_count}</span></td>
                             ${messageButton}
                             ${upvoteButton}
-                            <td class="score"><span>${post.score}</span></td>
+                            <td class="score"><span class="${spanClass}">${post.score}</span></td>
                             ${downvoteButton}
                         </tr>
                     </table>
@@ -154,8 +159,27 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 attachEventListeners();
             }
+
         }
         requestAnimationFrame(addNextChunk);
+        // observe();
+    }
+    function observe() {
+        const card = document.querySelectorAll('.card');
+        const config = { attributes: true };
+        const observer = new MutationObserver(handleDataScoreChange);
+        card.forEach(cardElement => {
+            observer.observe(cardElement, config);
+        });
+    }
+    function handleScoreChange(target) {
+        span = target;
+        const card = span.closest('.card');
+        span.className = '';
+        let res = parseFloat(card.dataset['score']) / parseFloat(card.dataset['total_votes']);
+        if (res > 0.5) span.className = 'positive';
+        else if (res < 0.5) span.className = 'negative';
+        else span.className = '';
     }
     function attachEventListeners() {
         document.querySelectorAll('.message').forEach(button =>
@@ -169,6 +193,10 @@ document.addEventListener('DOMContentLoaded', function () {
         );
         document.querySelectorAll("input[type='submit']").forEach(submit =>
             submit.addEventListener('click', putPost)
+        );
+        const sp = document.querySelectorAll('.score span');
+        document.querySelectorAll('.score span').forEach(span => 
+            span.addEventListener('oncnahge',handleScoreChange)
         );
     }
     fetchPosts(currentPage);
@@ -204,7 +232,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     const response = JSON.parse(xhr.response);
                     comments = response['comments'];
                     addCardsInChunks(comments, 10, undefined, comments_list, true);
-
                 }
                 catch (e) { console.error('Error parsing JSON: ', e); }
             }
@@ -253,7 +280,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 action: action
             }));
             xhr.onload = function () {
-                // console.log(JSON.parse(xhr.response));
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const response = JSON.parse(xhr.response);
@@ -297,6 +323,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         function updateScore(postId, newScore) {
             document.querySelector(`.card[data-id="${postId}"] .card_footer .actions tr .score span`).textContent = newScore;
+            let card = document.querySelector(`.card[data-id="${postId}"]`);
+            card.dataset['score'] = newScore;
+            handleScoreChange(document.querySelector(`.card[data-id="${postId}"] .card_footer .actions tr .score span`));
         }
     }
     function putPost() {
