@@ -130,41 +130,7 @@ function update($user_id, $card_id, $action, $is_comment)
     echo json_encode($response);
 }
 
-function updateComment($user_id, $comment_id, $action)
-{
-    // $conn = getDbConnection();
-    // $conn->begin_transaction();
-    // try {
-    //     if ($action === 'upvote') {
-    //         unvote($conn, $user_id, $comment_id, true);
-    //         $stmt = $conn->prepare("INSERT INTO user_votes (user_id, card_id, vote_type) VALUES (?, ?, 'upvote')");
-    //         $stmt->bind_param('ii', $user_id, $card_id);
-    //         $stmt->execute();
-    //         $conn->query("UPDATE cards SET score = score + 1 WHERE id = $card_id");
-    //     } elseif ($action === 'downvote') {
-    //         unvote($conn, $user_id, $comment_id, true);
-    //         $stmt = $conn->prepare("INSERT INTO user_votes (user_id, card_id, vote_type) VALUES (?, ?, 'downvote')");
-    //         $stmt->bind_param('ii', $user_id, $card_id);
-    //         $stmt->execute();
-    //         $conn->query("UPDATE cards SET score = score - 1 WHERE id = $card_id");
-    //     } elseif ($action === 'unvote') {
-    //         unvote($conn, $user_id, $comment_id, true);
-    //     } else {
-    //         throw new Exception('Invalid action');
-    //     }
-    //     $conn->commit();
-    //     $result = $conn->query("SELECT score FROM cards WHERE id = $card_id");
-    //     $newScore = $result->fetch_assoc()['score'];
 
-    //     $response['success'] = true;
-    //     $response['newScore'] = $newScore;
-    // } catch (Exception $e) {
-    //     $conn->rollback();
-    //     $response['error'] = $e->getMessage();
-    // }
-    // $conn->close();
-    // echo json_encode($response);
-}
 function putPost($user_id, $content)
 {
     $conn = getDbConnection();
