@@ -600,7 +600,6 @@ input[type='submit'] {
         width: 50vw;
     }
     .comments_section {
-        margin-left: 10px;
         max-width: 85vw; /* Использовать всю ширину экрана */
         padding: 10px; /* Увеличить отступы */
     }
