@@ -104,7 +104,8 @@ li:last-child .card {
 }
 
 .content {
-    padding: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
     text-align: justify;
 }
 
@@ -182,6 +183,26 @@ hr {
 }
 .actions button{
     padding: 0px;
+}
+.delete_container{
+    width: fit-content;
+    height: fit-content;
+}
+.card_header{
+    display: flex;
+    justify-content: space-between
+}
+button.delete{
+    padding: 0px;
+}
+.delete img{
+    width: 20px;
+    height: 20px;
+    filter: invert(0%) sepia(100%) saturate(1000%) hue-rotate(0deg) brightness(100%) contrast(100%);
+    transition: filter 0.3s ease;
+}
+.delete img:hover{
+    filter: invert(26%) sepia(95%) saturate(7488%) hue-rotate(0deg) brightness(103%) contrast(103%);
 }
 table {
     table-layout: auto;
@@ -329,8 +350,12 @@ input[type='submit'] {
     opacity: 0;
     transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }
+.error_comment{
+    color: red;
+}
 
 .notification.show {
+    color: white;
     display: block;
     opacity: 1;
     transform: translateX(-50%) translateY();
@@ -341,11 +366,13 @@ input[type='submit'] {
     transform: translateX(-50%) translateY(-20px);
 }
 
-#error.show {
+.show {
     display: block;
-    color: rgb(122, 32, 32);
 }
 
+.hide{
+    display: none;
+}
 #count {
     display: block;
 }
@@ -508,6 +535,9 @@ input[type='submit'] {
         height: 40px; /* Уменьшить высоту */
         margin: 5px 0; /* Уменьшить отступы */
     }
+    #logout{
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -600,6 +630,12 @@ input[type='submit'] {
         margin-left: 0px;
         min-width: 80vw;
         max-width: 80vw;
+    }
+}
+@media (min-width: 768px) and (max-width: 1280px) {
+    .card{
+        max-width: 85vw;
+        min-width: 85vw;
     }
 }
 .hidden{

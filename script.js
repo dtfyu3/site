@@ -10,11 +10,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const close_modal = document.getElementById('closeModal');
     const notification = document.getElementById('notification');
     const errorDiv = document.getElementById('error');
+    const errorComment = document.getElementById('error_comment');
     const register = document.getElementById('register');
     const logout = document.getElementById('logout');
     const page = document.querySelector('#pagination a');
     const count = document.getElementById('post_count')
     const avatarIcon = document.getElementById('avatarIcon');
+    const submitComment = document.getElementById('submit_comment');
 
     if (window.localStorage.getItem("userId") && window.localStorage.getItem("userName")) {
         userId = window.localStorage.getItem("userId");
@@ -26,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
         name.innerHTML = window.localStorage.getItem("userName");
         avatarIcon.src = '/images/user.png';
         document.getElementById('warning').remove();
+
     }
     else {
         document.getElementById('warning').style.display = "flex";
@@ -38,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     close_modal.addEventListener('click', closeModal);
     register.addEventListener('click', handleRegister);
     logout.addEventListener('click', logOut);
+    submitComment.addEventListener('click', putComment);
     document.getElementById('pagination_container').addEventListener('click', changePage);
 
     function changePage(event) {
@@ -111,24 +115,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const li = document.createElement('li');
         let f = window.localStorage.getItem('userId') ? true : false;
         let messageButton;
+        const userName = f ? window.localStorage.getItem('userName') : null;
         let res = parseFloat(post.score) / parseFloat(post.total_votes);
         let spanClass = '';
         let comment_counter = '';
         let comment_count = '';
+        let deleteDiv = (userName != null && userName === post.author) ? '<div class="delete_container"><button class="delete"><img src="images/delete.png" class="icon"></img></button></div>' : '';
         if (!isComment) {
-            comment_counter = post.comment_count;
+            comment_counter = post.comment_count ? post.comment_count : 0;
             comment_count = `<td class="comment_count"><span>${comment_counter}</span></td>`;
             if (res > 0.5) spanClass = 'positive';
             else if (res < 0.5) spanClass = 'negative';
             else { spanClass = '' };
-            messageButton = f ? `<td><button class="message"><img class="icon" src="images/message.png"></button></td>` : '';
+            messageButton = f ? `<td><button class="message"><img class="icon" src="images/message.png"></button></td>` : 'Комментариев:';
         }
-        if (isComment)messageButton = '';
+        if (isComment) messageButton = '';
         let upvoteButton = f ? `<td><button class="upvote" data-voted= ${post.user_vote === "upvote"}><img class="icon" src="images/angle-up.png"></button></td>` : '';
         let downvoteButton = f ? `<td><button class="downvote" data-voted= ${post.user_vote === "downvote"}><img class="icon" src="images/angle-down.png"></button></td>` : '';
         li.innerHTML = `
             <div class="card" data-id="${post.id}" data-score="${post.score}" data-total_votes="${post.total_votes}">
-                <div class="author"><span>${post.author}</span></div>
+            <div class="card_header">
+            <div class="author"><span>${post.author}</span></div>
+            ${deleteDiv}
+            </div>
                 <div class="content"><span>${post.content}</span></div>
                 <hr />
                 <div class="card_footer">
@@ -167,15 +176,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
         requestAnimationFrame(addNextChunk);
-        // observe();
-    }
-    function observe() {
-        const card = document.querySelectorAll('.card');
-        const config = { attributes: true };
-        const observer = new MutationObserver(handleDataScoreChange);
-        card.forEach(cardElement => {
-            observer.observe(cardElement, config);
-        });
     }
     function handleScoreChange(target) {
         span = target;
@@ -203,6 +203,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.score span').forEach(span =>
             span.addEventListener('oncnahge', handleScoreChange)
         );
+        if (window.localStorage.getItem('userName')) {
+            const deleteButton = document.querySelectorAll('.delete');
+            deleteButton.forEach(button =>
+                button.addEventListener('click', handleDelete)
+            );
+        }
     }
     fetchPosts(currentPage);
     function handleMessageClick(event) {
@@ -211,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
             isCommentOpen = true;
             container.innerHTML = '';
             container.appendChild(card);
-            fetchComments(card.dataset['id']);
+            fetchComments(card.dataset['id'], false);
             document.getElementById('comments_section').classList.remove('hidden');
             comments_list.classList.remove('hidden');
         }
@@ -222,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchPosts(currentPage);
         }
     };
-    function fetchComments(cardId) {
+    function fetchComments(cardId, flag, callback) {
         comments_list.innerHTML = '';
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=getComments', true);
@@ -236,7 +242,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const response = JSON.parse(xhr.response);
                     comments = response['comments'];
-                    addCardsInChunks(comments, 10, undefined, comments_list, true);
+                    if (!flag) addCardsInChunks(comments, 10, undefined, comments_list, true);
+                    else {
+                        callback(comments);
+                    }
                 }
                 catch (e) { console.error('Error parsing JSON: ', e); }
             }
@@ -337,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let form = document.forms.putPost;
         const formData = new FormData(form);
         const content = formData.get('text').trim();
-        if (!validateMessage(content)) {
+        if (!validateMessage(content, false)) {
             return;
         }
         console.log(content);
@@ -354,12 +363,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const response = JSON.parse(xhr.response);
                     data = response['data'];
-                    // console.log(data);
                     form.reset();
+                    const arr = [];
+                    arr.push(data);
                     showNotification();
-                    container.innerHTML = '';
-                    fetchPosts(currentPage);
-                    addCardsInChunks(posts, undefined, 1);
+                    addCardsInChunks(arr, undefined, 1, container, false);
+                    count.textContent = response['total_result'];
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
@@ -373,6 +382,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
         modal.style.display = 'none';
     }
+    function putComment(event) {
+        const card = document.querySelector('.cards .card');
+        const textarea = event.currentTarget.closest('.comments_actions').querySelector('textarea');
+        const content = textarea.value;
+        validateMessage(content, true);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'api.php?get_action=putComment', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({
+            user_id: userId,
+            card_id: card.dataset['id'],
+            content: content
+        }));
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const response = JSON.parse(xhr.response);
+                    comments_list.innerHTML = '';
+                    fetchComments(card.dataset['id'], false);
+                    updateCommentsCount(card, response['comments_count']);
+                    showNotification();
+                    textarea.value = '';
+                }
+                catch (e) { console.error('Error parsing JSON: ', e); }
+            }
+        }
+    }
+    function updateCommentsCount(card, comments_count) {
+        const c = card.querySelector('.comment_count span');
+        c.textContent = '';
+        c.textContent = comments_count;
+
+    }
     function showNotification() {
         notification.classList.add('show');
         setTimeout(() => {
@@ -383,23 +425,41 @@ document.addEventListener('DOMContentLoaded', function () {
             notification.classList.remove('hide');
         }, 1500);
     }
-    function validateMessage(message) {
-        const minLength = 10;
+    function validateMessage(message, isComment) {
+        var error = errorComment;
+        var minLength = 1;
+        if (!isComment) {
+            minLength = 10;
+            error = errorDiv;
+        };
         const maxLength = 1000;
-        errorDiv.textContent = '';
-
+        error.textContent = '';
         if (message.length < minLength) {
-            errorDiv.classList.add('show');
-            errorDiv.textContent = `Сообщение должно содержать не менее ${minLength} символов.`;
+            error.classList.add('show');
+            error.classList.remove('hide');
+            setTimeout(() => {
+                error.classList.add('hide');
+            }, 1500);
+            setTimeout(() => {
+                error.classList.remove('show');
+            }, 1500);
+            error.textContent = `Сообщение должно содержать не менее ${minLength} символов.`;
             return false;
         }
 
         if (message.length > maxLength) {
-            errorDiv.classList.add('show');
-            errorDiv.textContent = `Сообщение должно содержать не более ${maxLength} символов.`;
+            error.classList.add('show');
+            error.classList.remove('hide');
+            setTimeout(() => {
+                error.classList.add('hide');
+            }, 1500);
+            setTimeout(() => {
+                error.classList.remove('show');
+            }, 1500);
+            error.textContent = `Сообщение должно содержать не более ${maxLength} символов.`;
             return false;
         }
-        errorDiv.classList.remove("show");
+        error.classList.remove("show");
         return true;
     }
 
@@ -409,5 +469,44 @@ document.addEventListener('DOMContentLoaded', function () {
     function logOut() {
         window.localStorage.clear();
         location.reload();
+    }
+
+    function handleDelete(event) {
+        const card = event.currentTarget.closest('.card');
+        if (card.parentElement.parentElement.classList.contains('comments_list')) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'api.php?get_action=deleteComment', true);
+            ///TODO/////// DELETE COMMENTS
+        }
+        else { //delete posts
+            if (confirm('Вы действительно хотите удалить данную запись?')) {
+                var comments = [];
+                fetchComments(card.dataset['id'], true, comments => {
+                    const xhr = new XMLHttpRequest();
+                    const arr = [];
+                    comments.forEach(comment => { arr.push(comment['id']) });
+                    xhr.open('POST', 'api.php?get_action=delete', true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.send(JSON.stringify({
+                        card_id: card.dataset['id'],
+                        comment_list: arr
+                    }));
+
+                    xhr.onload = function () {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                const response = JSON.parse(xhr.response);
+                                if (response.success === true) {
+                                    const childToRemove = container.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
+                                    container.removeChild(childToRemove);
+                                    count.textContent = parseInt(count.textContent) - 1;
+                                }
+                            }
+                            catch (e) { console.error('Error parsing JSON: ', e); }
+                        }
+                    }
+                })
+            }
+        }
     }
 });

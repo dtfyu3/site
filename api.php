@@ -155,6 +155,9 @@ function putPost($user_id, $content)
     } else {
         $response['error'] = 'Database error: ' . $stmt->error;
     }
+    $stmt = $conn->query('select count(*) from cards');
+    $total_result = $stmt->fetch_column();
+    $response['total_result'] = $total_result;
     $stmt = $conn->prepare('select name from users where id = ?');
     $stmt->bind_param('i', $user_id);
     $stmt->execute();
@@ -164,13 +167,78 @@ function putPost($user_id, $content)
     $conn->close();
     echo json_encode($response);
 }
+function putComment($user_id,$card_id,$content){
+    $conn = getDbConnection();
+    $conn->begin_transaction();
+    $content = strip_tags($content);
+    $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+    $comment_id = null;
+    $date =  date('Y-m-d H:i:s');
+    try{
+        $stmt = $conn->prepare('insert into comments (user_id, content, date) values (?,?,?)');
+        $stmt->bind_param('iss',$user_id,$content,$date);
+        if ($stmt->execute()){
+            $comment_id = $stmt->insert_id;
+            $response['data']=[
+                'id' => $comment_id,
+                'content' => $content,
+                'date' => $date,
+                'score' => 0
+            ];
+        }
+        $stmt = $conn->prepare('insert into card_comments (card_id, comment_id) values (?,?)');
+        $stmt->bind_param('ii',$card_id,$comment_id);
+        $stmt->execute();
+        $stmt = $conn->prepare('select count(*) from card_comments where card_id = ?');
+        $stmt->bind_param('i',$card_id);
+        $stmt->execute();
+        $comments_count = $stmt->get_result()->fetch_column();
+        $conn->commit();
+        $response['success'] = true;
+        $response['comments_count'] = $comments_count;
+    }
+    catch(Exception $e){
+        $conn->rollback();
+        $response['error'] = $e->getMessage();
+    }
+    $conn->close();
+    echo json_encode($response);
+}
+function delete($card_id = null, $comment_id = null, $comment_list = null){
+    if(!is_null($card_id) && !is_null($comment_list))
+    {
+        $conn = getDbConnection();
+        $conn->begin_transaction();
+        $stmt = $conn->prepare('delete from cards where id = ?');
+        $stmt->bind_param('i',$card_id);
+        try {
+            $stmt->execute();
+            if(!empty($comment_list)){
+                $str = implode(',',array_map('intval',$comment_list));
+                $sql = "delete from comments where id in ($str)";
+                $conn->query($sql);
+            }
+            $response['success'] = true;
+            $conn->commit();
+        } catch (Exception $e) {
+            $conn->rollback();
+            $response['error'] = $e->getMessage();
+        }
+    }
+    else{
+
+    }
+    $conn->close();
+    echo json_encode($response);
+
+}
 function getComments($card_id)
 {
     $conn = getDbConnection();
     $stmt = $conn->prepare('select c.id, name as author, content, date, score,vote_type as user_vote 
 from comments c 
 left join users on c.user_id = users.id 
-left join card_comments cc on card_id = cc.card_id
+left join card_comments cc on c.id = cc.comment_id
 left join comments_votes cv on cv.user_id = users.id and cv.comment_id = c.id
 where cc.card_id = ?
 order by date desc');
@@ -223,7 +291,18 @@ if ($get_action != null) {
         putPost(intval($data['user_id']), $data['content']);
     } elseif ($get_action == 'getComments' && isset($data['card_id'])) {
         getComments($data['card_id']);
-    } else {
+    } 
+    elseif ($get_action == 'putComment' && isset($data['card_id']) && isset($data['user_id']) ){
+        $user_id = intval($data['user_id']);
+        $card_id = intval($data['card_id']);
+        $content = $data['content'];
+        putComment($user_id, $card_id, $content);
+    }
+    elseif($get_action == 'delete'){
+        if(isset($data['card_id']) && isset($data['comment_list'])) delete(card_id:intval($data['card_id']), comment_list:$data['comment_list']);
+        elseif (isset($data['comment_id'])) delete(comment_id:$intval($data['comment_id']));
+    }
+    else {
         $response = ['error' => 'Invalid action'];
         echo json_encode($response);
     };
