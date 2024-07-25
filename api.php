@@ -205,7 +205,7 @@ function putComment($user_id,$card_id,$content){
     echo json_encode($response);
 }
 function delete($card_id = null, $comment_id = null, $comment_list = null){
-    if(!is_null($card_id) && !is_null($comment_list))
+    if(!is_null($card_id))
     {
         $conn = getDbConnection();
         $conn->begin_transaction();
@@ -213,7 +213,7 @@ function delete($card_id = null, $comment_id = null, $comment_list = null){
         $stmt->bind_param('i',$card_id);
         try {
             $stmt->execute();
-            if(!empty($comment_list)){
+            if(!empty($comment_list) && !is_null($comment_list)){
                 $str = implode(',',array_map('intval',$comment_list));
                 $sql = "delete from comments where id in ($str)";
                 $conn->query($sql);
@@ -311,8 +311,12 @@ if ($get_action != null) {
         putComment($user_id, $card_id, $content);
     }
     elseif($get_action == 'delete'){
-        if(isset($data['card_id']) && isset($data['comment_list'])) delete(card_id:intval($data['card_id']), comment_list:$data['comment_list']);
-        elseif (isset($data['comment_id'])) delete(comment_id:intval($data['comment_id']));
+        if(isset($data['comment_id'])){
+            delete(comment_id:intval($data['comment_id']));
+        }
+        else{
+            delete(card_id:intval($data['card_id']), comment_list: $data['comment_list']);
+        }
     }
     else {
         $response = ['error' => 'Invalid action'];

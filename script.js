@@ -214,9 +214,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
         if (!isCommentOpen) {
-
-            // container.innerHTML = '';
-            // container.appendChild(card);
             hideCards(card, isCommentOpen);
             fetchComments(card.dataset['id'], false);
             document.getElementById('comments_section').classList.remove('hidden');
@@ -227,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
             hideCards(card, isCommentOpen);
             comments_list.innerHTML = '';
             document.getElementById('comments_section').classList.add('hidden');
-            // fetchPosts(currentPage);
             isCommentOpen = false;
         }
     };
@@ -408,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     function putComment(event) {
         const cards = container.querySelectorAll('li:not([style*="display: none"])');
-        const card = cards[cards.length-1].querySelector('.card');
+        const card = cards[cards.length - 1].querySelector('.card');
         const textarea = event.currentTarget.closest('.comments_actions').querySelector('textarea');
         const content = textarea.value;
         validateMessage(content, true);
@@ -517,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             const childToRemove = comments_list.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
                             comments_list.removeChild(childToRemove);
                             const cards = container.querySelectorAll('li:not([style*="display: none"])');
-                            const parentCard = cards[cards.length-1].querySelector('.card');
+                            const parentCard = cards[cards.length - 1].querySelector('.card');
                             let comment_count = parseInt(parentCard.querySelector('.comment_count span').textContent) - 1;
                             updateCommentsCount(parentCard, comment_count);
                         }
@@ -526,33 +522,49 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         }
-        else { //delete posts
+        else {
             if (confirm('Вы действительно хотите удалить данную запись?')) {
-                fetchComments(card.dataset['id'], true, comments => {
-                    const xhr = new XMLHttpRequest();
-                    const arr = [];
-                    comments.forEach(comment => { arr.push(comment['id']) });
-                    xhr.open('POST', 'api.php?get_action=delete', true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.send(JSON.stringify({
-                        card_id: card.dataset['id'],
-                        comment_list: arr
-                    }));
+                if (isCommentOpen) {
+                    document.getElementById('comments_section').classList.add('hidden');
+                    hideCards(card, isCommentOpen);
+                    isCommentOpen = false;
+                }
+                const comment_count = card.querySelector('.comment_count span').textContent > 0;
+                if (comment_count) {
+                    fetchComments(card.dataset['id'], true, comments => {
+                        const arr = [];
+                        comments.forEach(comment => { arr.push(comment['id']) });
+                        del(arr);
+                    })
+                }
+                else {
+                    document.getElementById('comments_section').classList.add('hidden');
+                    isCommentOpen = false;
+                    del();
+                }
+            }
+        }
+        function del(arr = null) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'api.php?get_action=delete', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                card_id: card.dataset['id'],
+                comment_list: arr
+            }));
 
-                    xhr.onload = function () {
-                        if (xhr.status >= 200 && xhr.status < 300) {
-                            try {
-                                const response = JSON.parse(xhr.response);
-                                if (response.success === true) {
-                                    const childToRemove = container.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
-                                    container.removeChild(childToRemove);
-                                    count.textContent = parseInt(count.textContent) - 1;
-                                }
-                            }
-                            catch (e) { console.error('Error parsing JSON: ', e); }
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.response);
+                        if (response.success === true) {
+                            const childToRemove = container.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
+                            container.removeChild(childToRemove);
+                            count.textContent = parseInt(count.textContent) - 1;
                         }
                     }
-                })
+                    catch (e) { console.error('Error parsing JSON: ', e); }
+                }
             }
         }
     }
