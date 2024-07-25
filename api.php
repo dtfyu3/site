@@ -225,24 +225,36 @@ function delete($card_id = null, $comment_id = null, $comment_list = null){
             $response['error'] = $e->getMessage();
         }
     }
-    else{
-
+    elseif(!is_null($comment_id)){
+        try{
+            $conn = getDbConnection();
+            $conn->begin_transaction();
+            $stmt = $conn->prepare('delete from comments where id = ?');
+            $stmt->bind_param('i',$comment_id);
+            $stmt->execute();  
+            $response['success'] = true;
+            $conn->commit();
+        }
+        catch(Exception $e){
+            $conn->rollback();
+            $response['error'] = $e->getMessage();
+        }
     }
     $conn->close();
     echo json_encode($response);
 
 }
-function getComments($card_id)
+function getComments($card_id,$user_id)
 {
     $conn = getDbConnection();
     $stmt = $conn->prepare('select c.id, name as author, content, date, score,vote_type as user_vote 
 from comments c 
 left join users on c.user_id = users.id 
 left join card_comments cc on c.id = cc.comment_id
-left join comments_votes cv on cv.user_id = users.id and cv.comment_id = c.id
+left join comments_votes cv on cv.user_id = ? and cv.comment_id = c.id
 where cc.card_id = ?
 order by date desc');
-    $stmt->bind_param('i', $card_id);
+    $stmt->bind_param('ii',$user_id,$card_id);
     if ($stmt->execute()) {
         $comments = array();
         $result = $stmt->get_result();
@@ -253,7 +265,7 @@ order by date desc');
                 'content' => $row['content'],
                 'date' => $row['date'],
                 'score' => $row['score'],
-                'user_vote' => isset($row['user_vote']) ? $row['user_vote'] : null
+                'user_vote' => isset($row['user_vote']) ? $row['user_vote'] : null,
             ];
         }
         $response['success'] = true;
@@ -290,7 +302,7 @@ if ($get_action != null) {
     } elseif ($get_action == 'putPost' && isset($data['content'])) {
         putPost(intval($data['user_id']), $data['content']);
     } elseif ($get_action == 'getComments' && isset($data['card_id'])) {
-        getComments($data['card_id']);
+        getComments($data['card_id'],$data['user_id']);
     } 
     elseif ($get_action == 'putComment' && isset($data['card_id']) && isset($data['user_id']) ){
         $user_id = intval($data['user_id']);
@@ -300,7 +312,7 @@ if ($get_action != null) {
     }
     elseif($get_action == 'delete'){
         if(isset($data['card_id']) && isset($data['comment_list'])) delete(card_id:intval($data['card_id']), comment_list:$data['comment_list']);
-        elseif (isset($data['comment_id'])) delete(comment_id:$intval($data['comment_id']));
+        elseif (isset($data['comment_id'])) delete(comment_id:intval($data['comment_id']));
     }
     else {
         $response = ['error' => 'Invalid action'];

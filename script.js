@@ -214,20 +214,38 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
         if (!isCommentOpen) {
-            isCommentOpen = true;
-            container.innerHTML = '';
-            container.appendChild(card);
+
+            // container.innerHTML = '';
+            // container.appendChild(card);
+            hideCards(card, isCommentOpen);
             fetchComments(card.dataset['id'], false);
             document.getElementById('comments_section').classList.remove('hidden');
             comments_list.classList.remove('hidden');
+            isCommentOpen = true;
         }
         else {
-            isCommentOpen = false;
+            hideCards(card, isCommentOpen);
             comments_list.innerHTML = '';
             document.getElementById('comments_section').classList.add('hidden');
-            fetchPosts(currentPage);
+            // fetchPosts(currentPage);
+            isCommentOpen = false;
         }
     };
+    function hideCards(card, isCommentOpen) {
+        let sibling = card.closest('li').nextElementSibling;
+        if (!isCommentOpen) {
+            while (sibling) {
+                sibling.style.display = "none";
+                sibling = sibling.nextElementSibling;
+            }
+        }
+        else {
+            while (sibling) {
+                sibling.style.display = "list-item";
+                sibling = sibling.nextElementSibling;
+            }
+        }
+    }
     function fetchComments(cardId, flag, callback) {
         comments_list.innerHTML = '';
         const xhr = new XMLHttpRequest();
@@ -235,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
             card_id: cardId,
+            user_id: userId
         }));
 
         xhr.onload = function () {
@@ -322,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const response = JSON.parse(xhr.response);
-                        updateScore(cardId, response['newScore']);
+                        updateScore(cardId, response['newScore'],true);
 
                     } catch (e) {
                         console.error('Error parsing JSON:', e);
@@ -335,9 +354,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Request error');
             };
         }
-        function updateScore(postId, newScore) {
-            document.querySelector(`.card[data-id="${postId}"] .card_footer .actions tr .score span`).textContent = newScore;
-            let card = document.querySelector(`.card[data-id="${postId}"]`);
+        function updateScore(postId, newScore, isComment = false) {
+            const list = !isComment ? container : comments_list;
+            list.querySelector(`.card[data-id="${postId}"] .card_footer .actions tr .score span`).textContent = newScore;
+            let card = list.querySelector(`.card[data-id="${postId}"]`);
             card.dataset['score'] = newScore;
             handleScoreChange(document.querySelector(`.card[data-id="${postId}"] .card_footer .actions tr .score span`));
         }
@@ -399,8 +419,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (xhr.status >= 200 && xhr.status < 300) {
                 try {
                     const response = JSON.parse(xhr.response);
-                    comments_list.innerHTML = '';
-                    fetchComments(card.dataset['id'], false);
+                    // comments_list.innerHTML = '';
+                    data = response['data'];
+                    data['author'] = window.localStorage.getItem('userName');
+                    const arr = [];
+                    arr.push(data);
+                    addCardsInChunks(arr,undefined,1,comments_list,true);
                     updateCommentsCount(card, response['comments_count']);
                     showNotification();
                     textarea.value = '';
@@ -475,12 +499,30 @@ document.addEventListener('DOMContentLoaded', function () {
         const card = event.currentTarget.closest('.card');
         if (card.parentElement.parentElement.classList.contains('comments_list')) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'api.php?get_action=deleteComment', true);
-            ///TODO/////// DELETE COMMENTS
+            xhr.open('POST', 'api.php?get_action=delete', true);
+            xhr.open('POST', 'api.php?get_action=delete', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                comment_id: card.dataset['id']
+            }));
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.response);
+                        if (response.success === true) {
+                            const childToRemove = comments_list.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
+                            comments_list.removeChild(childToRemove);
+                            const parentCard = container.firstElementChild;
+                            let comment_count = parseInt(parentCard.querySelector('.comment_count span').textContent)-1;
+                            updateCommentsCount(parentCard,comment_count);
+                        }
+                    }
+                    catch (e) { console.error('Error parsing JSON: ', e); }
+                }
+            }
         }
         else { //delete posts
             if (confirm('Вы действительно хотите удалить данную запись?')) {
-                var comments = [];
                 fetchComments(card.dataset['id'], true, comments => {
                     const xhr = new XMLHttpRequest();
                     const arr = [];
