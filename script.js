@@ -247,27 +247,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     function fetchComments(cardId, flag, callback) {
-        comments_list.innerHTML = '';
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api.php?get_action=getComments', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-            card_id: cardId,
-            user_id: userId
-        }));
+        let card = document.querySelector(`.cards .card[data-id="${cardId}"]`);
+        if (card.querySelector('.comment_count span').textContent > 0) {
+            comments_list.innerHTML = '';
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'api.php?get_action=getComments', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                card_id: cardId,
+                user_id: userId
+            }));
 
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                    const response = JSON.parse(xhr.response);
-                    comments = response['comments'];
-                    if (!flag) addCardsInChunks(comments, 10, undefined, comments_list, true);
-                    else {
-                        callback(comments);
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.response);
+                        comments = response['comments'];
+                        if (!flag) addCardsInChunks(comments, 10, undefined, comments_list, true);
+                        else {
+                            callback(comments);
+                        }
                     }
+                    catch (e) { console.error('Error parsing JSON: ', e); }
                 }
-                catch (e) { console.error('Error parsing JSON: ', e); }
             }
+
         }
 
     }
@@ -341,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const response = JSON.parse(xhr.response);
-                        updateScore(cardId, response['newScore'],true);
+                        updateScore(cardId, response['newScore'], true);
 
                     } catch (e) {
                         console.error('Error parsing JSON:', e);
@@ -403,7 +407,8 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.style.display = 'none';
     }
     function putComment(event) {
-        const card = document.querySelector('.cards .card');
+        const cards = container.querySelectorAll('li:not([style*="display: none"])');
+        const card = cards[cards.length-1].querySelector('.card');
         const textarea = event.currentTarget.closest('.comments_actions').querySelector('textarea');
         const content = textarea.value;
         validateMessage(content, true);
@@ -424,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     data['author'] = window.localStorage.getItem('userName');
                     const arr = [];
                     arr.push(data);
-                    addCardsInChunks(arr,undefined,1,comments_list,true);
+                    addCardsInChunks(arr, undefined, 1, comments_list, true);
                     updateCommentsCount(card, response['comments_count']);
                     showNotification();
                     textarea.value = '';
@@ -500,7 +505,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (card.parentElement.parentElement.classList.contains('comments_list')) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'api.php?get_action=delete', true);
-            xhr.open('POST', 'api.php?get_action=delete', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify({
                 comment_id: card.dataset['id']
@@ -512,9 +516,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (response.success === true) {
                             const childToRemove = comments_list.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
                             comments_list.removeChild(childToRemove);
-                            const parentCard = container.firstElementChild;
-                            let comment_count = parseInt(parentCard.querySelector('.comment_count span').textContent)-1;
-                            updateCommentsCount(parentCard,comment_count);
+                            const cards = container.querySelectorAll('li:not([style*="display: none"])');
+                            const parentCard = cards[cards.length-1].querySelector('.card');
+                            let comment_count = parseInt(parentCard.querySelector('.comment_count span').textContent) - 1;
+                            updateCommentsCount(parentCard, comment_count);
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
