@@ -138,6 +138,7 @@ function update($user_id, $card_id, $action, $is_comment)
 function putPost($user_id, $content)
 {
     $conn = getDbConnection();
+    $limit = 10;
     $content = strip_tags($content);
     $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
     $date =  date('Y-m-d H:i:s');
@@ -163,6 +164,9 @@ function putPost($user_id, $content)
     $stmt->execute();
     $result = $stmt->get_result();
     $response['data']['author'] = $result->fetch_column();
+    $total = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
+    $total_pages = ceil($total / $limit);
+    $response['total_pages'] = $total_pages;
     $stmt->close();
     $conn->close();
     echo json_encode($response);

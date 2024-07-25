@@ -51,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function () {
             currentPage = target.dataset['page'];
             container.innerHTML = '';
             fetchPosts(currentPage);
-            // return false;
         }
     }
     function HandleCardsChange() {
@@ -387,8 +386,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     const arr = [];
                     arr.push(data);
                     showNotification();
+                    if(response['total_pages'] > document.getElementById('pagination').children.length){
+                        addPages(response['total_pages']);
+                        container.innerHTML = '';
+                        fetchPosts(currentPage);
+                    }
+                    else{
                     addCardsInChunks(arr, undefined, 1, container, false);
                     count.textContent = response['total_result'];
+                    }
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
@@ -552,7 +558,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 card_id: card.dataset['id'],
                 comment_list: arr
             }));
-
             xhr.onload = function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
