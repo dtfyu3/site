@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.style.display = "none";
     }
     async function fetchPosts(page = 1, limit = null, offset = false, callback) {
-        if(offset == false) container.innerHTML = '';
+        if (offset == false) container.innerHTML = '';
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
@@ -401,16 +401,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     arr.push(data);
                     showNotification();
                     const childcount = container.querySelectorAll('li').length;
-                    if(childcount+1 > limit){container.removeChild(container.lastElementChild)};
-                    if (response['total_pages'] > document.getElementById('pagination').children.length) { //if insert leads to new page to be added is then refresh current page by answering server
-                        addPages(response['total_pages']);
-                        container.innerHTML = '';
-                        fetchPosts(currentPage);
+                    addCardsInChunks(arr, undefined, 1, container, false);
+                    if (childcount + 1 > limit) { //if card to be added overfill the page
+                        container.removeChild(container.lastElementChild); //then remove last card
+                        if (response['total_pages'] > document.getElementById('pagination').children.length) { //if insert leads to new page to be added
+                            addPages(response['total_pages']); //then get new number of pages
+                        }
                     }
-                    else { // if page is not full then prepend managed card into list without refreshing page
-                        addCardsInChunks(arr, undefined, 1, container, false);
-                        count.textContent = response['total_result'];
-                    }
+                    count.textContent = response['total_result'];
+                    // if (response['total_pages'] > document.getElementById('pagination').children.length) { 
+                    //     addPages(response['total_pages']);
+                    //     container.innerHTML = '';
+                    //     fetchPosts(currentPage);
+                    // }
+                    // else { // if page is not full then prepend managed card into list without refreshing page
+                    // }
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
@@ -583,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             container.removeChild(childToRemove);
                             count.textContent = parseInt(count.textContent) - 1;
                             if (container.querySelectorAll('li').length < limit && response['total_pages'] > 1) {
-                                fetchPosts(parseInt(currentPage) + 1, 1, true,post => {
+                                fetchPosts(parseInt(currentPage) + 1, 1, true, post => {
                                     addCardsInChunks(post, undefined, 0, container, false);
                                 })
                             }
