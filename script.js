@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const count = document.getElementById('post_count')
     const avatarIcon = document.getElementById('avatarIcon');
     const submitComment = document.getElementById('submit_comment');
+    const textarea = document.querySelector('.comments_section textarea');
+
 
     if (window.localStorage.getItem("userId") && window.localStorage.getItem("userName")) {
         userId = window.localStorage.getItem("userId");
@@ -28,6 +30,9 @@ document.addEventListener('DOMContentLoaded', function () {
         name.innerHTML = window.localStorage.getItem("userName");
         avatarIcon.src = '/images/user.png';
         document.getElementById('warning').remove();
+        textarea.addEventListener('keydown', function(event){
+            if(event.key === 'Enter' && !event.shiftKey){event.preventDefault();submitComment.click();}
+        });
 
     }
     else {
@@ -100,8 +105,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addPages(total_pages) {
         var list = document.getElementById('pagination');
-        let pageElement;
-        let pages = [];
+        // let pageElement;
+        // let pages = [];
         while (list.firstChild) { list.removeChild(list.firstChild) }
         for (let i = 1; i <= total_pages; i++) {
             var li = document.createElement('li');
