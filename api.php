@@ -19,7 +19,6 @@ function getPosts($user_id = null, $page = 1)
     $conn = getDbConnection();
     $limit = 10;
     $start = ($page - 1) * $limit;
-    $limit = 10 * $page;
     if ($user_id != null) {
         $sql = "select cards.id, name as author, date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count,
         (select count(*) from user_votes u where u.card_id = cards.id) as total_votes
@@ -30,7 +29,6 @@ function getPosts($user_id = null, $page = 1)
      (select count(*) from user_votes u where u.card_id = cards.id) as total_votes 
     from cards inner join users on users.id = cards.author order by date desc limit ?, ?';
     $posts = array();
-
     $response = ['success' => false];
     if ($stmt = $conn->prepare($sql)) {
         if (is_null($user_id)) $stmt->bind_param('ii', $start, $limit);
@@ -52,7 +50,6 @@ function getPosts($user_id = null, $page = 1)
             ];
         }
         $response['success'] = true;
-        // $response['userId'] = $user_id;
         $response['posts'] = $posts;
         $response['total_pages'] = $total_pages;
         $response['total_result'] = $total_result;
