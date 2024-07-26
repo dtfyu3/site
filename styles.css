@@ -27,9 +27,11 @@ li:last-child .card {
     color: red;
     vertical-align: middle;
 }
-#closeModal:hover{
+
+#closeModal:hover {
     cursor: pointer;
 }
+
 .card {
     margin: 0 auto;
     margin-bottom: 20px;
@@ -48,9 +50,11 @@ li:last-child .card {
     justify-content: space-between;
     align-items: center;
 }
-.message_count{
+
+.message_count {
     padding: 0px;
 }
+
 .comments_section {
     margin: 0 auto;
     margin-top: 20px;
@@ -62,18 +66,24 @@ li:last-child .card {
     width: 90%;
     height: 100%;
 }
-.comments_section li:last-child .card{
+
+.comments_section li:last-child .card {
     margin-bottom: 10px;
 }
-.comments_actions{
+
+.comments_actions {
     display: flex;
-    align-items: center; /* Вертикальное выравнивание по центру */
-    justify-content: center; /* Горизонтальное выравнивание по центру */
+    align-items: center;
+    /* Вертикальное выравнивание по центру */
+    justify-content: center;
+    /* Горизонтальное выравнивание по центру */
     text-align: center;
 }
-.comments_section span{
+
+.comments_section span {
     display: block;
 }
+
 .comment_input {
     display: inline-block;
     width: 90%;
@@ -81,21 +91,27 @@ li:last-child .card {
     margin: 0 auto;
     margin-top: 10px;
 }
-.comments_list{
+
+.comments_list {
     list-style: none;
     margin-top: 10px;
 }
-.comments_list .card hr{
+
+.comments_list .card hr {
     margin: 0px;
 }
-.comments_list .card{
+
+.comments_list .card {
     background-color: rgb(206, 200, 200);
     margin-left: 10px;
     margin-bottom: 10px;
 }
-.comments_list button{
-    background-color: rgb(206, 200, 200);;
+
+.comments_list button {
+    background-color: rgb(206, 200, 200);
+    ;
 }
+
 #submit_comment {
     /* margin-bottom: 10px; */
     margin: 0 auto;
@@ -162,11 +178,13 @@ hr {
     display: inline-block;
     text-align: left;
 }
-.comments_list .info{
+
+.comments_list .info {
     flex: 2;
 }
 
-.author, .date {
+.author,
+.date {
     margin: 0;
     font-size: 16px;
     font-style: italic;
@@ -181,29 +199,36 @@ hr {
     flex: 1;
     width: fit-content;
 }
-.actions button{
+
+.actions button {
     padding: 0px;
 }
-.delete_container{
+
+.delete_container {
     width: fit-content;
     height: fit-content;
 }
-.card_header{
+
+.card_header {
     display: flex;
     justify-content: space-between
 }
-button.delete{
+
+button.delete {
     padding: 0px;
 }
-.delete img{
+
+.delete img {
     width: 20px;
     height: 20px;
     filter: invert(0%) sepia(100%) saturate(1000%) hue-rotate(0deg) brightness(100%) contrast(100%);
     transition: filter 0.3s ease;
 }
-.delete img:hover{
+
+.delete img:hover {
     filter: invert(26%) sepia(95%) saturate(7488%) hue-rotate(0deg) brightness(103%) contrast(103%);
 }
+
 table {
     table-layout: auto;
     border-collapse: collapse;
@@ -217,10 +242,12 @@ table {
 td {
     padding: 8px;
 }
-tr{
+
+tr {
     display: flex;
     justify-content: space-between;
 }
+
 button {
     margin: 0 auto;
     padding: 8px 16px;
@@ -247,15 +274,19 @@ img.icon {
     height: 20px;
 }
 
-.score, .comment_count {
+.score,
+.comment_count {
     vertical-align: middle;
 }
-.positive{
+
+.positive {
     color: #4CAF50;
 }
-.negative{
+
+.negative {
     color: #8b1515;
 }
+
 button img.icon {
     transition: transform 0.2s ease, filter 0.2s ease;
 }
@@ -350,7 +381,8 @@ input[type='submit'] {
     opacity: 0;
     transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }
-.error_comment{
+
+.error_comment {
     color: red;
 }
 
@@ -370,9 +402,10 @@ input[type='submit'] {
     display: block;
 }
 
-.hide{
+.hide {
     display: none;
 }
+
 #count {
     display: block;
 }
@@ -388,40 +421,58 @@ input[type='submit'] {
     animation: blink 2s infinite;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 90vw; /* Максимальная ширина элемента */
-    overflow: hidden; /* Скрывает текст, который не помещается в элемент */
-    padding: 10px 15px; /* Отступы для лучшего отображения */
-    box-sizing: border-box; /* Включаем отступы и границы в размер элемента */
-    background-color: rgba(0, 0, 0, 0.7); /* Фон для контраста текста */
-    color: white; /* Цвет текста для лучшей видимости */
-    border-radius: 5px; /* Закругленные углы для улучшения внешнего вида */
+    max-width: 90vw;
+    /* Максимальная ширина элемента */
+    overflow: hidden;
+    /* Скрывает текст, который не помещается в элемент */
+    padding: 10px 15px;
+    /* Отступы для лучшего отображения */
+    box-sizing: border-box;
+    /* Включаем отступы и границы в размер элемента */
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Фон для контраста текста */
+    color: white;
+    /* Цвет текста для лучшей видимости */
+    border-radius: 5px;
+    /* Закругленные углы для улучшения внешнего вида */
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
 }
+
 #warning span {
     display: inline-block;
-    white-space: nowrap; /* Запрещает перенос текста на новую строку */
-    animation: scroll-text 10s linear infinite; /* Запускаем анимацию */
+    white-space: nowrap;
+    /* Запрещает перенос текста на новую строку */
+    animation: scroll-text 10s linear infinite;
+    /* Запускаем анимацию */
 }
+
 @keyframes scroll-text {
     0% {
-        transform: translateX(100%); /* Начинаем с текста полностью справа */
+        transform: translateX(100%);
+        /* Начинаем с текста полностью справа */
     }
+
     100% {
-        transform: translateX(-100%); /* Перемещаем текст полностью влево */
+        transform: translateX(-100%);
+        /* Перемещаем текст полностью влево */
     }
 }
+
 #register {
     font-size: 20px;
     margin-top: 20px;
 }
 
 @keyframes blink {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
     }
+
     50% {
         opacity: 0.5;
     }
@@ -461,6 +512,18 @@ input[type='submit'] {
     border-color: #007bff;
     cursor: default;
     pointer-events: none;
+}
+
+.pagination .current {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
+}
+
+.pagination .current:hover {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
 }
 
 @media (max-width: 480px) {
@@ -515,7 +578,8 @@ input[type='submit'] {
         font-size: 14px;
     }
 
-    .cards, .comments_list {
+    .cards,
+    .comments_list {
         margin-top: 10px;
     }
 
@@ -524,18 +588,25 @@ input[type='submit'] {
         margin-top: 5px;
         width: 90vw;
     }
+
     .comments_section {
         max-width: 80vw;
-        border-width: 1px; /* Уменьшить толщину рамки */
-        padding: 5px; /* Уменьшить отступы */
+        border-width: 1px;
+        /* Уменьшить толщину рамки */
+        padding: 5px;
+        /* Уменьшить отступы */
     }
 
-    .comment_input, #submit_comment {
+    .comment_input,
+    #submit_comment {
         max-width: inherit;
-        height: 40px; /* Уменьшить высоту */
-        margin: 5px 0; /* Уменьшить отступы */
+        height: 40px;
+        /* Уменьшить высоту */
+        margin: 5px 0;
+        /* Уменьшить отступы */
     }
-    #logout{
+
+    #logout {
         font-size: 14px;
     }
 }
@@ -545,6 +616,7 @@ input[type='submit'] {
         max-width: 85vw;
         min-width: 85vw;
     }
+
     .modal_content {
         max-width: 90vw;
         min-width: 90vw;
@@ -596,48 +668,62 @@ input[type='submit'] {
         margin-top: 10px;
         width: 80vw;
     }
-    #openModal{
+
+    #openModal {
         width: 50vw;
     }
+
     .comments_section {
-        max-width: 85vw; /* Использовать всю ширину экрана */
-        padding: 10px; /* Увеличить отступы */
+        max-width: 85vw;
+        /* Использовать всю ширину экрана */
+        padding: 10px;
+        /* Увеличить отступы */
     }
 
     .comments_actions {
         max-width: 80vw;
-        flex-direction: column; /* Переключение на колонку */
-        align-items: stretch; /* Растянуть элементы */
+        flex-direction: column;
+        /* Переключение на колонку */
+        align-items: stretch;
+        /* Растянуть элементы */
     }
 
     .comment_input {
         max-width: 80vw;
-        width: 100%; /* Занять всю ширину */
-        margin: 10px 0; /* Отступы сверху и снизу */
+        width: 100%;
+        /* Занять всю ширину */
+        margin: 10px 0;
+        /* Отступы сверху и снизу */
     }
 
     #submit_comment {
         max-width: 80vw;
-        width: 100%; /* Занять всю ширину */
-        margin: 10px 0; /* Отступы сверху и снизу */
+        width: 100%;
+        /* Занять всю ширину */
+        margin: 10px 0;
+        /* Отступы сверху и снизу */
     }
-    .comments_list{
+
+    .comments_list {
         min-width: 85vw;
         max-width: 85vw;
     }
-    .comments_list .card{
+
+    .comments_list .card {
         padding: 0;
         margin-left: 0px;
         min-width: 85vw;
         max-width: 85vw;
     }
 }
+
 @media (min-width: 768px) and (max-width: 1280px) {
-    .card{
+    .card {
         max-width: 85vw;
         min-width: 85vw;
     }
 }
-.hidden{
+
+.hidden {
     display: none;
 }
