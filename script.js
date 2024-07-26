@@ -382,7 +382,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validateMessage(content, false)) {
             return;
         }
-        console.log(content);
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=putPost', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -588,14 +587,12 @@ document.addEventListener('DOMContentLoaded', function () {
                             container.removeChild(childToRemove);
                             count.textContent = parseInt(count.textContent) - 1;
                             if (container.querySelectorAll('li').length < limit && response['total_pages'] > 1) {
-                                fetchPosts(parseInt(currentPage) + 1, 1, true, post => {
+                                fetchPosts(parseInt(currentPage), 1, true, post => {
                                     addCardsInChunks(post, undefined, 0, container, false);
                                 })
                             }
                             if (response['total_pages'] != document.getElementById('pagination').children.length) {
                                 addPages(response['total_pages']);
-                                container.innerHTML = '';
-                                fetchPosts(currentPage);
                             }
                         }
                     }
