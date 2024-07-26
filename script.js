@@ -76,15 +76,15 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeModal(event) {
         modal.style.display = "none";
     }
-    async function fetchPosts(page = 1) {
-        container.innerHTML = '';
+    async function fetchPosts(page = 1, limit = null, offset = false, callback) {
+        if(offset == false) container.innerHTML = '';
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ user_id: userId, page: page })
+                body: JSON.stringify({ user_id: userId, page: page, limit: limit, offset: offset })
             });
 
             if (!response.ok) {
@@ -93,10 +93,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
             if (data.success) {
-                const total_pages = data['total_pages'];
-                count.textContent = data['total_result'];
-                addCardsInChunks(data['posts'], 10, undefined, container, false);
-                addPages(total_pages);
+                if (!callback) {
+                    const total_pages = data['total_pages'];
+                    count.textContent = data['total_result'];
+                    addCardsInChunks(data['posts'], 10, undefined, container, false);
+                    addPages(total_pages);
+                }
+                else {
+                    callback(data['posts']);
+                }
             } else {
                 console.error('Error:', data.error);
                 return [];
@@ -116,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
             list.appendChild(li);
         }
         const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
-                a.classList.add('current');
+        a.classList.add('current');
     }
 
     function createCard(post, isComment) {
@@ -575,6 +580,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             const childToRemove = container.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
                             container.removeChild(childToRemove);
                             count.textContent = parseInt(count.textContent) - 1;
+                            if (container.querySelectorAll('li').length < limit && response['total_pages'] > 1) {
+                                fetchPosts(parseInt(currentPage) + 1, 1, true,post => {
+                                    addCardsInChunks(post, undefined, 0, container, false);
+                                })
+                            }
                             if (response['total_pages'] != document.getElementById('pagination').children.length) {
                                 addPages(response['total_pages']);
                                 container.innerHTML = '';

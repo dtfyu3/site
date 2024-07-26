@@ -1,24 +1,26 @@
 <?php
 // header('Content-Type: application/json');
 error_reporting();
+$post_num = 10;
 function getDbConnection()
 {
     $servername = "localhost";
     $username = "root";
     $password = "1q2w3e4r5t6y0";
     $dbname = "test";
-
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
     return $conn;
 }
-function getPosts($user_id = null, $page = 1)
+function getPosts($user_id = null, $page = 1,$limit = null,$offset=false)
 {
     $conn = getDbConnection();
-    $limit = 10;
-    $start = ($page - 1) * $limit;
+    global $post_num;
+    if(is_null($limit))$limit = 10;
+    if($offset == false) $start = ($page - 1) * $post_num;
+    else $start = $post_num - 1;
     if ($user_id != null) {
         $sql = "select cards.id, name as author, date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count,
         (select count(*) from user_votes u where u.card_id = cards.id) as total_votes
@@ -50,6 +52,8 @@ function getPosts($user_id = null, $page = 1)
             ];
         }
         $response['success'] = true;
+        $response['start']= $start;
+        $response['limit'] = $limit;
         $response['posts'] = $posts;
         $response['total_pages'] = $total_pages;
         $response['total_result'] = $total_result;
@@ -287,7 +291,7 @@ if ($get_action != null) {
     if ($get_action == 'getPosts') {
         if (isset($data['user_id'])) {
             $user_id = intval($data['user_id']);
-            getPosts($user_id, $data['page']);
+            getPosts($user_id, $data['page'],$data['limit'],$data['offset']);
         } else getPosts(page: $data['page']);
     } elseif ($get_action == 'update' && isset($data['user_id'])) {
         if (isset($data['card_id']) && isset($data['action'])) {
