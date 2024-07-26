@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', function () {
         name.innerHTML = window.localStorage.getItem("userName");
         avatarIcon.src = '/images/user.png';
         document.getElementById('warning').remove();
-        textarea.addEventListener('keydown', function(event){
-            if(event.key === 'Enter' && !event.shiftKey){event.preventDefault();submitComment.click();}
+        textarea.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitComment.click(); }
         });
 
     }
@@ -55,7 +55,11 @@ document.addEventListener('DOMContentLoaded', function () {
             event.preventDefault();
             currentPage = target.dataset['page'];
             container.innerHTML = '';
-            fetchPosts(currentPage);
+            fetchPosts(currentPage).then(() => {
+                const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
+                a.classList.add('current');
+            });
+
         }
     }
     function HandleCardsChange() {
@@ -105,14 +109,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addPages(total_pages) {
         var list = document.getElementById('pagination');
-        // let pageElement;
-        // let pages = [];
         while (list.firstChild) { list.removeChild(list.firstChild) }
         for (let i = 1; i <= total_pages; i++) {
             var li = document.createElement('li');
             li.innerHTML = `<li><a href="#" data-page="${i}">${i}</a></li>`;
             list.appendChild(li);
         }
+        const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
+                a.classList.add('current');
     }
 
     function createCard(post, isComment) {
