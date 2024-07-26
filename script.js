@@ -400,7 +400,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     const arr = [];
                     arr.push(data);
                     showNotification();
-                    if (response['total_pages'] > document.getElementById('pagination').children.length) { //if page is full then refreshing it by answering server
+                    const childcount = container.querySelectorAll('li').length;
+                    if(childcount+1 > limit){container.removeChild(container.lastElementChild)};
+                    if (response['total_pages'] > document.getElementById('pagination').children.length) { //if insert leads to new page to be added is then refresh current page by answering server
                         addPages(response['total_pages']);
                         container.innerHTML = '';
                         fetchPosts(currentPage);
