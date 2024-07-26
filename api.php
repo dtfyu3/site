@@ -20,7 +20,7 @@ function getPosts($user_id = null, $page = 1,$limit = null,$offset=false)
     global $post_num;
     if(is_null($limit))$limit = 10;
     if($offset == false) $start = ($page - 1) * $post_num;
-    else $start = $post_num - 1;
+    else $start = ($page * $post_num) - 1;
     if ($user_id != null) {
         $sql = "select cards.id, name as author, date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count,
         (select count(*) from user_votes u where u.card_id = cards.id) as total_votes
