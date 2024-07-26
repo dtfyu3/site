@@ -194,6 +194,11 @@
                             }, 1500);
                         } else {
                             messageElement.innerHTML = data.message;
+                            messageElement.style.display = 'block';
+                            setTimeout(() => {
+                                messageElement.style.display = 'none';
+                            }, 1500);
+                            this.reset();
                         }
                     })
                     .catch(error => console.error('Error:', error));
