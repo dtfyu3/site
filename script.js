@@ -386,14 +386,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     const arr = [];
                     arr.push(data);
                     showNotification();
-                    if(response['total_pages'] > document.getElementById('pagination').children.length){
+                    if (response['total_pages'] > document.getElementById('pagination').children.length) { //if page is full then refreshing it by answering server
                         addPages(response['total_pages']);
                         container.innerHTML = '';
                         fetchPosts(currentPage);
                     }
-                    else{
-                    addCardsInChunks(arr, undefined, 1, container, false);
-                    count.textContent = response['total_result'];
+                    else { // if page is not full then prepend managed card into list without refreshing page
+                        addCardsInChunks(arr, undefined, 1, container, false);
+                        count.textContent = response['total_result'];
                     }
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
@@ -566,6 +566,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             const childToRemove = container.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
                             container.removeChild(childToRemove);
                             count.textContent = parseInt(count.textContent) - 1;
+                            if (response['total_pages'] != document.getElementById('pagination').children.length) {
+                                addPages(response['total_pages']);
+                                container.innerHTML = '';
+                                fetchPosts(currentPage);
+                            }
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
