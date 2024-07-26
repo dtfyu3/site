@@ -382,6 +382,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validateMessage(content, false)) {
             return;
         }
+        if(currentPage != 1){
+            currentPage = 1;
+            document.querySelector(`.pagination a[data-page="${1}"]`).click();
+        }
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=putPost', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
