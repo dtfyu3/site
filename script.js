@@ -133,6 +133,12 @@ document.addEventListener('DOMContentLoaded', function () {
         let spanClass = '';
         let comment_counter = '';
         let comment_count = '';
+        const [dateStr, time] = post.date.split(' ');
+        var date = new Date(dateStr + 'T' + time);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        date = `${day}-${month}-${year}`;
         let deleteDiv = (userName != null && userName === post.author) ? '<div class="delete_container"><button class="delete"><img src="images/delete.png" class="icon"></img></button></div>' : '';
         if (!isComment) {
             comment_counter = post.comment_count ? post.comment_count : 0;
@@ -154,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="content"><span>${post.content}</span></div>
                 <hr />
                 <div class="card_footer">
-                    <div class="info"><span class="date">${post.date}</span></div>
+                    <div class="info"><span class="date">${date} ${time}</span></div>
                     <table class="actions">
                         <tr>
                             ${comment_count}
