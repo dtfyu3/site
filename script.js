@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const errorComment = document.getElementById('error_comment');
     const register = document.getElementById('register');
     const logout = document.getElementById('logout');
-    const page = document.querySelector('#pagination a');
+    // const page = document.querySelector('#pagination a');
     const count = document.getElementById('post_count')
     const avatarIcon = document.getElementById('avatarIcon');
     const submitComment = document.getElementById('submit_comment');
@@ -139,7 +139,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         date = `${day}-${month}-${year}`;
+        const edited = (post.edit_date != null) ? ' <div class="edited" id="edited">Ред.</div>' : '';
         let deleteDiv = (userName != null && userName === post.author) ? '<div class="delete_container"><button class="delete"><img src="images/delete.png" class="icon"></img></button></div>' : '';
+        let editDiv = (userName != null && userName === post.author) ? '<div class="edit_container"><button class="edit"><img src="images/edit.png" class="icon"></img></button></div>' : '';
         if (!isComment) {
             comment_counter = post.comment_count ? post.comment_count : 0;
             comment_count = `<td class="comment_count"><span>${comment_counter}</span></td>`;
@@ -155,9 +157,14 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="card" data-id="${post.id}" data-score="${post.score}" data-total_votes="${post.total_votes}">
             <div class="card_header">
             <div class="author"><span>${post.author}</span></div>
+            <div class="card_header_buttons">
+            ${editDiv}
+            <div class="divider"></div>
             ${deleteDiv}
             </div>
+            </div>
                 <div class="content"><span>${post.content}</span></div>
+                ${edited}
                 <hr />
                 <div class="card_footer">
                     <div class="info"><span class="date">${date} ${time}</span></div>
@@ -224,9 +231,13 @@ document.addEventListener('DOMContentLoaded', function () {
         );
         if (window.localStorage.getItem('userName')) {
             const deleteButton = document.querySelectorAll('.delete');
+            const editButton = document.querySelectorAll('.edit');
             deleteButton.forEach(button =>
                 button.addEventListener('click', handleDelete)
             );
+            editButton.forEach(button => {
+                button.addEventListener('click', handleEdit)
+            })
         }
     }
     fetchPosts(currentPage);
@@ -388,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validateMessage(content, false)) {
             return;
         }
-        if(currentPage != 1){
+        if (currentPage != 1) {
             currentPage = 1;
             document.querySelector(`.pagination a[data-page="${1}"]`).click();
         }
@@ -607,6 +618,61 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
+                }
+            }
+        }
+    }
+
+    function handleEdit(event) {
+        const card = event.currentTarget.closest('.card');
+        if (!card.parentElement.parentElement.classList.contains('comments_list')) { //cards
+            // Array.from(container.children).forEach(el =>{el.style.display="none"})
+            // container.style.display = "none";
+            // let form = document.forms.putPost;
+            let text = card.querySelector('.content').innerText;
+            // form.text.value = text;
+            hideCards(card);
+            const form = document.createElement('form');
+            form.id = 'editForm';
+            const textarea = document.createElement('textarea');
+            const submit = document.createElement('input');
+            textarea.textContent = text;
+            submit.type = 'submit';
+            submit.style.display = 'block'
+            form.append(textarea);
+            form.append(submit);
+            container.append(form);
+            submit.addEventListener('click', updateCard(textarea.value,card.dataset['id']));
+        }
+        else {
+            //comments
+        }
+
+        function updateCard(text, card_id) {
+            {
+                // this.preventDefault
+                if (!validateMessage(text, false)) {
+                    return;
+                }
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'api.php?get_action=updateCard', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    card_id: card_id,
+                    content: text
+                }));
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const response = JSON.parse(xhr.response);
+                        }
+                        catch (e) {
+                            console.error('Error parsing JSON:', e);
+                        }
+                    }
+                    else {
+                        console.error('Request failed with status:', xhr.status);
+                    }
                 }
             }
         }
