@@ -139,9 +139,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         date = `${day}-${month}-${year}`;
-        const edited = (post.edit_date != null) ? ' <div class="edited" id="edited">Ред.</div>' : '';
+        const edited = (post.edit_date != null) ? '<div class="edited" id="edited">Ред.</div>' : '<div class="edited" id="edited"></div>';
         let deleteDiv = (userName != null && userName === post.author) ? '<div class="delete_container"><button class="delete"><img src="images/delete.png" class="icon"></img></button></div>' : '';
-        let editDiv = (userName != null && userName === post.author) ? '<div class="edit_container"><button class="edit"><img src="images/edit.png" class="icon"></img></button></div>' : '';
+        let editDiv = (userName != null && userName === post.author && !isComment) ? '<div class="edit_container"><button class="edit"><img src="images/edit.png" class="icon"></img></button></div>' : '';
         if (!isComment) {
             comment_counter = post.comment_count ? post.comment_count : 0;
             comment_count = `<td class="comment_count"><span>${comment_counter}</span></td>`;
@@ -625,12 +625,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function handleEdit(event) {
         const card = event.currentTarget.closest('.card');
-        if (!card.parentElement.parentElement.classList.contains('comments_list')) { //cards
-            // Array.from(container.children).forEach(el =>{el.style.display="none"})
-            // container.style.display = "none";
-            // let form = document.forms.putPost;
+        if (!card.parentElement.parentElement.classList.contains('comments_list')) {
             let text = card.querySelector('.content').innerText;
-            // form.text.value = text;
             hideCards(card);
             const form = document.createElement('form');
             form.id = 'editForm';
@@ -641,14 +637,14 @@ document.addEventListener('DOMContentLoaded', function () {
             submit.style.display = 'block'
             form.append(textarea);
             form.append(submit);
+            form.onsubmit = "return false";
+            form.addEventListener('submit', function(event){
+                event.preventDefault();
+                updateCard(textarea.value, card.dataset['id'], card);
+            });
             container.append(form);
-            submit.addEventListener('click', updateCard(textarea.value,card.dataset['id']));
         }
-        else {
-            //comments
-        }
-
-        function updateCard(text, card_id) {
+        function updateCard(text, card_id, card) {
             {
                 // this.preventDefault
                 if (!validateMessage(text, false)) {
@@ -665,6 +661,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
                             const response = JSON.parse(xhr.response);
+                            if(response.success === true)
+                            {
+                                showNotification();
+                                card.querySelector('.content').innerText = text;
+                                let edited = card.querySelector('.edited');
+                                edited.innerText = 'Ред.'
+                                container.removeChild(container.querySelector('form'));
+                                hideCards(card,true);
+                            }
                         }
                         catch (e) {
                             console.error('Error parsing JSON:', e);
