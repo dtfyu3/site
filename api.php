@@ -285,7 +285,7 @@ order by date desc');
 }
 function updateCard($card_id, $content, $is_comment = null)
 {
-    if (is_null($is_comment)) {//cards
+    if (is_null($is_comment)) {
         $conn = getDbConnection();
         $content = strip_tags($content);
         $content = htmlspecialchars($content,ENT_QUOTES, 'UTF-8');
@@ -300,9 +300,6 @@ function updateCard($card_id, $content, $is_comment = null)
             $response['error'] = $e->getMessage();
         }
         echo json_encode($response);
-    }
-    else{
-//comments
     }
 }
 $data = json_decode(file_get_contents('php://input'), true);
