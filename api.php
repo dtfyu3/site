@@ -14,30 +14,63 @@ function getDbConnection()
     }
     return $conn;
 }
-function getPosts($user_id = null, $page = 1, $limit = null, $offset = false)
+function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $query = null)
 {
     $conn = getDbConnection();
     global $post_num;
     if (is_null($limit)) $limit = 10;
     if ($offset == false) $start = ($page - 1) * $post_num;
     else $start = ($page * $post_num) - 1;
-    if ($user_id != null) {
-        $sql = "select cards.id, name as author, date, edit_date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count,
-        (select count(*) from user_votes u where u.card_id = cards.id) as total_votes
-        from cards inner join users on users.id = cards.author
-        left join user_votes on cards.id = user_votes.card_id and user_votes.user_id = ?
-        order by date desc limit ?, ?";
-    } else $sql = 'select cards.id, name as author, date, edit_date, content, score, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count, 
-     (select count(*) from user_votes u where u.card_id = cards.id) as total_votes 
-    from cards inner join users on users.id = cards.author order by date desc limit ?, ?';
-    $posts = array();
-    $response = ['success' => false];
-    if ($stmt = $conn->prepare($sql)) {
-        if (is_null($user_id)) $stmt->bind_param('ii', $start, $limit);
-        else $stmt->bind_param('iii', $user_id, $start, $limit);
+    try {
+        if ($user_id != null) {
+            $sql = "select cards.id, name as author, date, edit_date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count,
+            (select count(*) from user_votes u where u.card_id = cards.id) as total_votes from cards inner join users on users.id = cards.author
+            left join user_votes on cards.id = user_votes.card_id and user_votes.user_id = ?";
+            if (is_null($query)) {
+                $total_result = 'select count(*) as total_result from (' . $sql .' order by date desc) as a';
+                $stmt = $conn->prepare($total_result);
+                $stmt->bind_param('i',$user_id);
+                $stmt->execute();
+                $total_result = $stmt->get_result()->fetch_assoc()['total_result'];
+                $sql = $sql . ' order by date desc limit ?, ?';
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('iii', $user_id, $start, $limit);
+            } else {
+                $query = '%' . $query . '%';
+                $total_result = 'select count(*) as total_result from (' . $sql .' where content like ? order by date desc) as a';
+                $stmt = $conn->prepare($total_result);
+                $stmt->bind_param('is',$user_id,$query);
+                $stmt->execute();
+                $total_result = $stmt->get_result()->fetch_assoc()['total_result'];
+                $sql = $sql . " where content LIKE ?  order by date desc limit ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('isi', $user_id, $query, $limit);
+            }
+        } else {
+            $sql = 'select cards.id, name as author, date, edit_date, content, score, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count, 
+         (select count(*) from user_votes u where u.card_id = cards.id) as total_votes from cards inner join users on users.id = cards.author';
+            if (is_null($query)) {
+                $total_result = $conn->query('select count(*) as total_result from ('. $sql . 'order by date desc) as a')->fetch_assoc()['total_result'];
+                $sql = $sql . ' order by date desc limit ?, ?';
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('ii', $start, $limit);
+            } else {
+                $query = '%' . $query . '%';
+                $total_result = 'select count(*) as total_result from (' . $sql .' where content like ? order by date desc) as a';
+                $stmt = $conn->prepare($total_result);
+                $stmt->bind_param('s',$query);
+                $stmt->execute();
+                $total_result = $stmt->get_result()->fetch_assoc()['total_result'];
+                $sql = $sql . " where content like ? order by date desc limit ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('si', $query, $limit);
+            }
+        }
+        $posts = array();
+        $response = ['success' => false];
         $stmt->execute();
         $result = $stmt->get_result();
-        $total_result = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
+        // $total_result = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
         $total_pages = ceil($total_result / $limit);
         while ($row = $result->fetch_assoc()) {
             $posts[] = [
@@ -59,10 +92,10 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false)
         $response['total_pages'] = $total_pages;
         $response['total_result'] = $total_result;
         $stmt->close();
-    } else {
-        $response['error'] = 'Query failed: ' . $conn->error;
+        $conn->close();
+    } catch (Exception $e) {
+        $response['error'] = $e->getMessage();
     }
-    $conn->close();
 
     echo json_encode($response);
 }
@@ -288,15 +321,14 @@ function updateCard($card_id, $content, $is_comment = null)
     if (is_null($is_comment)) {
         $conn = getDbConnection();
         $content = strip_tags($content);
-        $content = htmlspecialchars($content,ENT_QUOTES, 'UTF-8');
+        $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
         $date =  date('Y-m-d H:i:s');
         $stmt = $conn->prepare('update cards set content = ?, edit_date = ? where id = ?');
-        $stmt->bind_param('ssi', $content,$date,$card_id);
-        try{
+        $stmt->bind_param('ssi', $content, $date, $card_id);
+        try {
             $stmt->execute();
             $response['success'] = true;
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             $response['error'] = $e->getMessage();
         }
         echo json_encode($response);
@@ -310,7 +342,7 @@ if ($get_action != null) {
     if ($get_action == 'getPosts') {
         if (isset($data['user_id'])) {
             $user_id = intval($data['user_id']);
-            getPosts($user_id, $data['page'], $data['limit'], $data['offset']);
+            getPosts($user_id, $data['page'], $data['limit'], $data['offset'], $data['query']);
         } else getPosts(page: $data['page']);
     } elseif ($get_action == 'update' && isset($data['user_id'])) {
         if (isset($data['card_id']) && isset($data['action'])) {
@@ -341,6 +373,8 @@ if ($get_action != null) {
         }
     } elseif ($get_action == 'updateCard') {
         updateCard($data['card_id'], $data['content']);
+    } elseif ($get_action == 'search') {
+        getPosts(user_id: $data['user_id'], query: $data['query']);
     } else {
         $response = ['error' => 'Invalid action'];
         echo json_encode($response);
