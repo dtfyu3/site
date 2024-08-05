@@ -32,7 +32,7 @@ body {
 #searchInput:focus {
     border-color: #007bff;
 }
-#searchButton,#resetButton {
+.searchButton,.resetButton {
     padding: 10px 20px;
     font-size: 16px;
     border: 2px solid #007bff;
@@ -40,12 +40,21 @@ body {
     color: #fff;
     border-radius: 0 4px 4px 0;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    /* transition: background-color 0.3s ease, border-color 0.3s ease; */
     width: fit-content;
     margin: 0 auto;
 }
+.disabled {
+    background-color: gray;
+    border-color: gray;
+}
 
-#searchButton:hover {
+.disabled:hover {
+    cursor: not-allowed;
+    background-color: gray !important;
+    border-color: gray !important;
+}
+.searchButton:hover {
     background-color: #0056b3;
     border-color: #0056b3;
 }
