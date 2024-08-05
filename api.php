@@ -50,7 +50,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
             $sql = 'select cards.id, name as author, date, edit_date, content, score, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count, 
          (select count(*) from user_votes u where u.card_id = cards.id) as total_votes from cards inner join users on users.id = cards.author';
             if (is_null($query)) {
-                $total_result = $conn->query('select count(*) as total_result from ('. $sql . 'order by date desc) as a')->fetch_assoc()['total_result'];
+                $total_result = $conn->query('select count(*) as total_result from ('. $sql . ' order by date desc) as a')->fetch_assoc()['total_result'];
                 $sql = $sql . ' order by date desc limit ?, ?';
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param('ii', $start, $limit);
@@ -70,7 +70,6 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
         $response = ['success' => false];
         $stmt->execute();
         $result = $stmt->get_result();
-        // $total_result = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
         $total_pages = ceil($total_result / $limit);
         while ($row = $result->fetch_assoc()) {
             $posts[] = [
@@ -343,7 +342,7 @@ if ($get_action != null) {
         if (isset($data['user_id'])) {
             $user_id = intval($data['user_id']);
             getPosts($user_id, $data['page'], $data['limit'], $data['offset'], $data['query']);
-        } else getPosts(page: $data['page']);
+        } else getPosts(page: $data['page'],query:$data['query']);
     } elseif ($get_action == 'update' && isset($data['user_id'])) {
         if (isset($data['card_id']) && isset($data['action'])) {
             $user_id = intval($data['user_id']);
