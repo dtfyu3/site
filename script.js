@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const avatarIcon = document.getElementById('avatarIcon');
     const submitComment = document.getElementById('submit_comment');
     const textarea = document.querySelector('.comments_section textarea');
-
+    const searchButton = document.getElementById('searchButton');
+    const resetButton = document.getElementById('resetButton');
 
     if (window.localStorage.getItem("userId") && window.localStorage.getItem("userName")) {
         userId = window.localStorage.getItem("userId");
@@ -48,6 +49,8 @@ document.addEventListener('DOMContentLoaded', function () {
     logout.addEventListener('click', logOut);
     submitComment.addEventListener('click', putComment);
     document.getElementById('pagination_container').addEventListener('click', changePage);
+    searchButton.addEventListener('click', search);
+    resetButton.addEventListener('click', resetSearch);
 
     function changePage(event) {
         const target = event.target;
@@ -76,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeModal(event) {
         modal.style.display = "none";
     }
-    async function fetchPosts(page = 1, limit = null, offset = false, callback) {
+    async function fetchPosts(page = 1, limit = null, offset = false, query = null, callback) {
         if (offset == false) container.innerHTML = '';
         try {
             const response = await fetch('api.php?get_action=getPosts', {
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ user_id: userId, page: page, limit: limit, offset: offset })
+                body: JSON.stringify({ user_id: userId, page: page, limit: limit, offset: offset, query: query })
             });
 
             if (!response.ok) {
@@ -96,8 +99,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!callback) {
                     const total_pages = data['total_pages'];
                     count.textContent = data['total_result'];
-                    addCardsInChunks(data['posts'], 10, undefined, container, false);
-                    addPages(total_pages);
+                    if (data['posts'].length > 0) {
+                        addCardsInChunks(data['posts'], 10, undefined, container, false);
+                        addPages(total_pages);
+                    }
+                    else {
+                        const span = document.createElement('span');
+                        span.textContent = "Ничего не найдено";
+                        container.appendChild(span);
+                    }
                 }
                 else {
                     callback(data['posts']);
@@ -429,13 +439,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     count.textContent = response['total_result'];
-                    // if (response['total_pages'] > document.getElementById('pagination').children.length) { 
-                    //     addPages(response['total_pages']);
-                    //     container.innerHTML = '';
-                    //     fetchPosts(currentPage);
-                    // }
-                    // else { // if page is not full then prepend managed card into list without refreshing page
-                    // }
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
@@ -608,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             container.removeChild(childToRemove);
                             count.textContent = parseInt(count.textContent) - 1;
                             if (container.querySelectorAll('li').length < limit && response['total_pages'] > 1) {
-                                fetchPosts(parseInt(currentPage), 1, true, post => {
+                                fetchPosts(parseInt(currentPage), 1, true, null, post => {
                                     addCardsInChunks(post, undefined, 0, container, false);
                                 })
                             }
@@ -638,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function () {
             form.append(textarea);
             form.append(submit);
             form.onsubmit = "return false";
-            form.addEventListener('submit', function(event){
+            form.addEventListener('submit', function (event) {
                 event.preventDefault();
                 updateCard(textarea.value, card.dataset['id'], card);
             });
@@ -661,14 +664,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
                             const response = JSON.parse(xhr.response);
-                            if(response.success === true)
-                            {
+                            if (response.success === true) {
                                 showNotification();
                                 card.querySelector('.content').innerText = text;
                                 let edited = card.querySelector('.edited');
                                 edited.innerText = 'Ред.'
                                 container.removeChild(container.querySelector('form'));
-                                hideCards(card,true);
+                                hideCards(card, true);
                             }
                         }
                         catch (e) {
@@ -680,6 +682,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
+        }
+    }
+
+    function search() {
+        const searchForm = document.forms.searchForm;
+        const formData = new FormData(searchForm);
+        let query = formData.get('query').trim();
+        if (query != null && query != '') {
+            fetchPosts(undefined, undefined, undefined, query);
+        }
+    }
+    function resetSearch() {
+        const searchForm = document.forms.searchForm;
+        if (searchForm.querySelector('#searchInput').value != '') {
+            searchForm.querySelector('#searchInput').value = '';
+            fetchPosts();
         }
     }
 });
