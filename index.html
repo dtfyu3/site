@@ -4,16 +4,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
   <link rel="stylesheet" href="./styles.css">
   <title>Мой сайт!</title>
 </head>
 
 <body>
+  <div class="search-container">
+    <form id="searchForm" onsubmit="return false;">
+      <input type="text" id="searchInput" name="query" placeholder="Поиск..." required>
+      <button type="submit" id="searchButton">🔍</button>
+      <div style="width: 5px;"></div>
+      <button type="button" id="resetButton">Сброс</button>
+    </form>
+  </div>
   <input name="post" type="button" value="Написать" id="openModal"></input>
   <input type="button" class="register" id="register" value="Регистрация/Вход" style="display: none;"></input>
-  <span id="count">Кол-во постов: <span id="post_count"></span></span>
+  <span id="count">Кол-во записей: <span id="post_count"></span></span>
   <div id="pagination_container">
     <ul id="pagination" class="pagination"></ul>
   </div>
