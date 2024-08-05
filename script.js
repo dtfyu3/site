@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const textarea = document.querySelector('.comments_section textarea');
     const searchButton = document.getElementById('searchButton');
     const resetButton = document.getElementById('resetButton');
+    const searchInput = document.getElementById('searchInput');
 
     if (window.localStorage.getItem("userId") && window.localStorage.getItem("userName")) {
         userId = window.localStorage.getItem("userId");
@@ -34,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
         textarea.addEventListener('keydown', function (event) {
             if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitComment.click(); }
         });
-
     }
     else {
         document.getElementById('warning').style.display = "flex";
@@ -43,12 +43,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('profile').remove();
         open_modal.remove();
     }
+
+    resetButton.disabled = true;
+    resetButton.classList.add('disabled');
+    searchButton.disabled = true;
+    searchButton.classList.add('disabled');
+
     open_modal.addEventListener('click', openModal);
     close_modal.addEventListener('click', closeModal);
     register.addEventListener('click', handleRegister);
     logout.addEventListener('click', logOut);
     submitComment.addEventListener('click', putComment);
     document.getElementById('pagination_container').addEventListener('click', changePage);
+    searchInput.addEventListener('input', handleSearchInput);
     searchButton.addEventListener('click', search);
     resetButton.addEventListener('click', resetSearch);
 
@@ -694,10 +701,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     function resetSearch() {
-        const searchForm = document.forms.searchForm;
-        if (searchForm.querySelector('#searchInput').value != '') {
-            searchForm.querySelector('#searchInput').value = '';
+        if (searchInput.value != '') {
+            searchInput.value = '';
+            const event = new Event('input', { bubbles: true });
+            searchInput.dispatchEvent(event);
             fetchPosts();
+        }
+    }
+    function handleSearchInput() {
+        if (searchInput.value.trim() === '') {
+            resetButton.disabled = true;
+            resetButton.classList.add('disabled');
+            searchButton.disabled = true;
+            searchButton.classList.add('disabled');
+        } else {
+            resetButton.disabled = false;
+            resetButton.classList.remove('disabled');
+            searchButton.disabled = false;
+            searchButton.classList.remove('disabled');
         }
     }
 });
