@@ -73,13 +73,13 @@ li:last-child .card {
     margin-bottom: 0;
 }
 
-#closeModal {
+#closeModal, .closeModal {
     font-size: 40px;
     color: red;
     vertical-align: middle;
 }
 
-#closeModal:hover {
+#closeModal:hover, .closeModal:hover {
     cursor: pointer;
 }
 
@@ -411,9 +411,19 @@ button[data-voted='true'] img {
     width: fit-content;
     max-width: 30vw;
     margin: 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
 }
 #editForm textarea{
     width: 20vw;
+    height: 10vh;
+    max-height: 20vh;
+    border: 2px solid #ddd;
+    border-bottom: 2px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 0px;
+    padding: 10px;
 }
 textarea {
     font-size: 20px;
@@ -608,7 +618,7 @@ input[type='submit'] {
 }
 
 @media (max-width: 480px) {
-    body {
+    body, textarea, input[type="submit"] {
         font-size: 16px;
     }
 
@@ -708,12 +718,24 @@ input[type='submit'] {
 
     #searchInput {
         border-right: 1px solid #ccc;
-        max-width: 80vw;
+        max-width: 85vw;
     }
 
     #searchButton {
         border-left: none;
         border-right: none;
+    }
+    #editForm textarea{
+        width: 92%;
+        height: 15vh;
+        max-height: 15vh;
+        padding: 10px;
+    }
+    #editForm{
+        margin: 0 auto;
+        width: 85vw;
+        max-width: 85vw;
+        padding: 10px;
     }
 }
 
@@ -743,13 +765,6 @@ input[type='submit'] {
         right: 0px;
         top: 5px;
     }
-
-    /* #searchForm{
-        width: 50vw;
-    } */
-    /* .searchInput{
-        width: 50vw;
-    } */
     .avatar {
         width: 40px;
         height: 40px;
@@ -828,12 +843,33 @@ input[type='submit'] {
         min-width: 85vw;
         max-width: 85vw;
     }
+    #editForm textarea{
+        width: 92%;
+        height: 15vh;
+        max-height: 15vh;
+        padding: 10px;
+    }
+    #editForm{
+        margin: 0 auto;
+        width: 85vw;
+        max-width: 85vw;
+        padding: 10px;
+    }
 }
 
 @media (min-width: 768px) and (max-width: 1280px) {
     .card {
         max-width: 85vw;
         min-width: 85vw;
+    }
+    #editForm textarea{
+        width: 85vw;
+        padding: 10px;
+    }
+    #editForm{
+        margin: 0 auto;
+        max-width: 100%;
+        padding: 10px;
     }
 }
 
