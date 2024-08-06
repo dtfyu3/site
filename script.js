@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentPage = 1;
     const limit = 10;
     var isCommentOpen = false;
+    var isEditOpen = false;
     const container = document.querySelector('.cards');
     const comments_list = document.getElementById('comments_list');
     const modal = document.getElementsByClassName('modal')[0];
@@ -261,14 +262,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
         if (!isCommentOpen) {
-            hideCards(card, isCommentOpen);
+            if (isEditOpen == false) hideCards(card, isCommentOpen);
             fetchComments(card.dataset['id'], false);
             document.getElementById('comments_section').classList.remove('hidden');
             comments_list.classList.remove('hidden');
             isCommentOpen = true;
         }
         else {
-            hideCards(card, isCommentOpen);
+            if (isEditOpen == false) hideCards(card, isCommentOpen);
             comments_list.innerHTML = '';
             document.getElementById('comments_section').classList.add('hidden');
             isCommentOpen = false;
@@ -464,30 +465,30 @@ document.addEventListener('DOMContentLoaded', function () {
         const card = cards[cards.length - 1].querySelector('.card');
         const textarea = event.currentTarget.closest('.comments_actions').querySelector('textarea');
         const content = textarea.value;
-        validateMessage(content, true);
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api.php?get_action=putComment', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-            user_id: userId,
-            card_id: card.dataset['id'],
-            content: content
-        }));
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                    const response = JSON.parse(xhr.response);
-                    // comments_list.innerHTML = '';
-                    data = response['data'];
-                    data['author'] = window.localStorage.getItem('userName');
-                    const arr = [];
-                    arr.push(data);
-                    addCardsInChunks(arr, undefined, 1, comments_list, true);
-                    updateCommentsCount(card, response['comments_count']);
-                    showNotification();
-                    textarea.value = '';
+        if (validateMessage(content, true)) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'api.php?get_action=putComment', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({
+                user_id: userId,
+                card_id: card.dataset['id'],
+                content: content
+            }));
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.response);
+                        data = response['data'];
+                        data['author'] = window.localStorage.getItem('userName');
+                        const arr = [];
+                        arr.push(data);
+                        addCardsInChunks(arr, undefined, 1, comments_list, true);
+                        updateCommentsCount(card, response['comments_count']);
+                        showNotification();
+                        textarea.value = '';
+                    }
+                    catch (e) { console.error('Error parsing JSON: ', e); }
                 }
-                catch (e) { console.error('Error parsing JSON: ', e); }
             }
         }
     }
@@ -635,25 +636,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function handleEdit(event) {
         const card = event.currentTarget.closest('.card');
-        if (!card.parentElement.parentElement.classList.contains('comments_list')) {
+        if (isEditOpen == false) {
+            isEditOpen = true;
             let text = card.querySelector('.content').innerText;
-            hideCards(card);
+            hideCards(card, false);
             const form = document.createElement('form');
             form.id = 'editForm';
             const textarea = document.createElement('textarea');
             const submit = document.createElement('input');
+            const close = document.createElement('span');
+            const div = document.createElement('div');
+            close.textContent = close_modal.textContent;
+            close.classList.add('closeModal');
             textarea.textContent = text;
             submit.type = 'submit';
-            submit.style.display = 'block'
+            submit.style.display = 'inline-block'
+            close.style.display = 'inline-block';
+            submit.style.margin = 0;
+            div.appendChild(submit);
+            div.appendChild(close);
             form.append(textarea);
-            form.append(submit);
+            form.append(div);
             form.onsubmit = "return false";
             form.addEventListener('submit', function (event) {
                 event.preventDefault();
                 updateCard(textarea.value, card.dataset['id'], card);
             });
+            close.addEventListener('click', function () {
+                closeEdit(card);
+            });
             container.append(form);
         }
+        else {
+            closeEdit(card);
+        }
+
         function updateCard(text, card_id, card) {
             {
                 // this.preventDefault
@@ -676,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 card.querySelector('.content').innerText = text;
                                 let edited = card.querySelector('.edited');
                                 edited.innerText = 'Ред.'
-                                container.removeChild(container.querySelector('form'));
+                                document.getElementById('editForm').remove;
                                 hideCards(card, true);
                             }
                         }
@@ -689,6 +706,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
+        }
+
+        function closeEdit(card) {
+            isEditOpen = false;
+            container.querySelector('#editForm').remove();
+            if (!isCommentOpen) hideCards(card, true);
         }
     }
 
