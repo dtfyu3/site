@@ -623,7 +623,7 @@ input[type='submit'] {
 }
 
 @media (max-width: 480px) {
-    body, textarea, input[type="submit"] {
+    body, textarea, input[type="submit"], select {
         font-size: 16px;
     }
 
