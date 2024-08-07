@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchButton = document.getElementById('searchButton');
     const resetButton = document.getElementById('resetButton');
     const searchInput = document.getElementById('searchInput');
+    const select = document.querySelector('.order select');
 
     if (window.localStorage.getItem("userId") && window.localStorage.getItem("userName")) {
         userId = window.localStorage.getItem("userId");
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     searchInput.addEventListener('input', handleSearchInput);
     searchButton.addEventListener('click', search);
     resetButton.addEventListener('click', resetSearch);
+    select.addEventListener('change',(event)=>{fetchPosts(currentPage)});
 
     function changePage(event) {
         const target = event.target;
@@ -89,13 +91,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     async function fetchPosts(page = 1, limit = null, offset = false, query = null, callback) {
         if (offset == false) container.innerHTML = '';
+        let order;
+        let option = select.selectedOptions[0].value;
+        if(option == 'asc') order = 'asc';
+        else order = null; 
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ user_id: userId, page: page, limit: limit, offset: offset, query: query })
+                body: JSON.stringify({ user_id: userId, page: page, limit: limit, offset: offset, query: query, order:order })
             });
 
             if (!response.ok) {
