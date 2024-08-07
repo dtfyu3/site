@@ -720,28 +720,55 @@ document.addEventListener('DOMContentLoaded', function () {
         const formData = new FormData(searchForm);
         let query = formData.get('query').trim();
         if (query != null && query != '') {
+            searchInput.dataset['searched'] = true;
             fetchPosts(undefined, undefined, undefined, query);
         }
+        resetButton.disabled = false;
+        resetButton.classList.remove('disabled');
     }
     function resetSearch() {
-        if (searchInput.value != '') {
+        if (searchInput.dataset['searched'] === 'true') {
             searchInput.value = '';
-            const event = new Event('input', { bubbles: true });
-            searchInput.dispatchEvent(event);
+            searchButton.disabled = true;
+            resetButton.disabled = true;
+            resetButton.classList.add('disabled');
+            searchButton.classList.add('disabled');
+            searchInput.dataset['searched'] = false;
             fetchPosts();
         }
     }
     function handleSearchInput() {
-        if (searchInput.value.trim() === '') {
-            resetButton.disabled = true;
-            resetButton.classList.add('disabled');
+        if (searchInput.value == '') {
             searchButton.disabled = true;
             searchButton.classList.add('disabled');
-        } else {
-            resetButton.disabled = false;
-            resetButton.classList.remove('disabled');
+            if (searchInput.dataset['searched'] === 'true') {
+                resetButton.disabled = true;
+                resetButton.classList.add('disabled');
+                resetSearch();
+                searchInput.dataset['searched'] = false;
+            }
+        }
+        else {
+            if (searchInput.dataset['searched'] === 'true') {
+                resetButton.disabled = false;
+                resetButton.classList.remove('disabled');
+            }
             searchButton.disabled = false;
             searchButton.classList.remove('disabled');
         }
+
+        // if (searchInput.value == '' && searchInput.dataset['searched'] === 'true') {
+        //     resetButton.disabled = true;
+        //     resetButton.classList.add('disabled');
+        //     searchButton.disabled = true;
+        //     searchButton.classList.add('disabled');
+        //     searchInput.dataset['searched'] = false;
+        //     resetSearch();
+        // } else {
+        //     resetButton.disabled = false;
+        //     resetButton.classList.remove('disabled');
+        //     searchButton.disabled = false;
+        //     searchButton.classList.remove('disabled');
+        // }
     }
 });
