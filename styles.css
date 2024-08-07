@@ -61,7 +61,12 @@ body {
 .cards {
     margin-top: 20px;
 }
-
+.order{
+    margin-top: 5px;
+}
+select{
+    font-size: 20px;
+}
 ul {
     display: block;
     list-style: none;
