@@ -18,7 +18,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
 {
     $conn = getDbConnection();
     global $post_num;
-    if (is_null($limit)) $limit = 10;
+    if (is_null($limit)) $limit = $post_num;
     if ($offset == false) $start = ($page - 1) * $post_num;
     else $start = ($page * $post_num) - 1;
     $order = $order == null ? 'desc' : 'asc';
@@ -334,6 +334,15 @@ function updateCard($card_id, $content, $is_comment = null)
         echo json_encode($response);
     }
 }
+function getPageCount(){
+    $conn = getDbConnection();
+    global $post_num;
+    $total_result = $conn->query("select count(*) as total_result from cards")->fetch_assoc()['total_result'];
+    $total_pages = ceil($total_result / $post_num);
+    $response['success'] = true;
+    $response['page_count'] = $total_pages;
+    echo json_encode($response);
+}
 $data = json_decode(file_get_contents('php://input'), true);
 $action = null;
 $get_action = null;
@@ -375,7 +384,8 @@ if ($get_action != null) {
         updateCard($data['card_id'], $data['content']);
     } elseif ($get_action == 'search') {
         getPosts($user_id, $data['page'], $data['limit'], $data['offset'], $data['query'], $data['order']);
-    } else {
+    } elseif($get_action == 'getPageCount') getPageCount(); 
+    else {
         $response = ['error' => 'Invalid action'];
         echo json_encode($response);
     };
