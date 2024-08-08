@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     count.textContent = data['total_result'];
                     if (data['posts'].length > 0) {
                         addCardsInChunks(data['posts'], 10, undefined, container, false);
-                        if(document.getElementById('pagination').children.length == 0) addPages(total_pages);
+                        if(total_pages != document.getElementById('pagination').children.length) addPages(total_pages,page);
                     }
                     else {
                         const span = document.createElement('span');
