@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function changePage(event) {
         const target = event.target;
+        document.querySelector('.pagination .current').classList.remove('current');
         if (target.matches('.pagination a')) {
             event.preventDefault();
             currentPage = parseInt(target.dataset['page']);
@@ -165,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         while (list.firstChild) { list.removeChild(list.firstChild) }
         for (let i = 1; i <= total_pages; i++) {
             var li = document.createElement('li');
-            li.innerHTML = `<li><a href="#" data-page="${i}">${i}</a></li>`;
+            li.innerHTML = `<a href="#" data-page="${i}">${i}</a>`;
             list.appendChild(li);
         }
         const a = document.querySelector(`.pagination a[data-page="${page}"]`);
@@ -290,7 +291,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     getPageCount();
-    // fetchPosts(currentPage);
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
         if (!isCommentOpen) {
