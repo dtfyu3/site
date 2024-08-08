@@ -60,15 +60,20 @@ document.addEventListener('DOMContentLoaded', function () {
     searchInput.addEventListener('input', handleSearchInput);
     searchButton.addEventListener('click', search);
     resetButton.addEventListener('click', resetSearch);
-    select.addEventListener('change',(event)=>{fetchPosts(currentPage)});
+    select.addEventListener('change', (event) => {
+        const search = searchInput.value.trim();
+        if (search != '' && search != null) fetchPosts(currentPage, undefined, undefined, search);
+        else fetchPosts(currentPage);
+    });
 
     function changePage(event) {
         const target = event.target;
         if (target.matches('.pagination a')) {
             event.preventDefault();
-            currentPage = target.dataset['page'];
+            currentPage = parseInt(target.dataset['page']);
             container.innerHTML = '';
-            fetchPosts(currentPage).then(() => {
+            const search = searchInput.value.trim();
+            fetchPosts(currentPage, undefined, undefined, search).then(() => {
                 const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
                 a.classList.add('current');
             });
@@ -93,15 +98,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (offset == false) container.innerHTML = '';
         let order;
         let option = select.selectedOptions[0].value;
-        if(option == 'asc') order = 'asc';
-        else order = null; 
+        if (option == 'asc') order = 'asc';
+        else order = null;
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ user_id: userId, page: page, limit: limit, offset: offset, query: query, order:order })
+                body: JSON.stringify({ user_id: userId, page: page, limit: limit, offset: offset, query: query, order: order })
             });
 
             if (!response.ok) {
@@ -136,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function addPages(total_pages) {
+    function addPages(total_pages, page=currentPage) {
         var list = document.getElementById('pagination');
         while (list.firstChild) { list.removeChild(list.firstChild) }
         for (let i = 1; i <= total_pages; i++) {
@@ -144,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
             li.innerHTML = `<li><a href="#" data-page="${i}">${i}</a></li>`;
             list.appendChild(li);
         }
-        const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
+        const a = document.querySelector(`.pagination a[data-page="${page}"]`);
         a.classList.add('current');
     }
 
@@ -215,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fragment.appendChild(card);
                 index++;
             }
-            if (flag) container.prepend(fragment);
+            if (!flag) container.prepend(fragment);
             else container.appendChild(fragment);
             HandleCardsChange();
             if (index < posts.length) {
@@ -423,10 +428,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validateMessage(content, false)) {
             return;
         }
-        if (currentPage != 1) {
-            currentPage = 1;
-            document.querySelector(`.pagination a[data-page="${1}"]`).click();
-        }
+        // if (currentPage != 1) {
+        //     currentPage = 1;
+        //     document.querySelector(`.pagination a[data-page="${1}"]`).click();
+        // }
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=putPost', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -445,9 +450,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     arr.push(data);
                     showNotification();
                     const childcount = container.querySelectorAll('li').length;
-                    addCardsInChunks(arr, undefined, 1, container, false);
+                    if (childcount + 1 <= limit) addCardsInChunks(arr, undefined, 1, container, false);
                     if (childcount + 1 > limit) { //if card to be added overfill the page
-                        container.removeChild(container.lastElementChild); //then remove last card
+                        // container.removeChild(container.lastElementChild); //then remove last card
                         if (response['total_pages'] > document.getElementById('pagination').children.length) { //if insert leads to new page to be added
                             addPages(response['total_pages']); //then get new number of pages
                         }
@@ -488,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         data['author'] = window.localStorage.getItem('userName');
                         const arr = [];
                         arr.push(data);
-                        addCardsInChunks(arr, undefined, 1, comments_list, true);
+                        addCardsInChunks(arr, undefined, 0, comments_list, true);
                         updateCommentsCount(card, response['comments_count']);
                         showNotification();
                         textarea.value = '';
@@ -624,13 +629,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             const childToRemove = container.querySelector('[data-id="' + card.dataset['id'] + '"]').closest('li');
                             container.removeChild(childToRemove);
                             count.textContent = parseInt(count.textContent) - 1;
-                            if (container.querySelectorAll('li').length < limit && response['total_pages'] > 1) {
-                                fetchPosts(parseInt(currentPage), 1, true, null, post => {
-                                    addCardsInChunks(post, undefined, 0, container, false);
-                                })
-                            }
+                            // if (container.querySelectorAll('li').length < limit && response['total_pages'] > 1) {
+                            //     fetchPosts(parseInt(currentPage), 1, true, null, post => {
+                            //         addCardsInChunks(post, undefined, 0, container, false);
+                            //     })
+                            // }
                             if (response['total_pages'] != document.getElementById('pagination').children.length) {
-                                addPages(response['total_pages']);
+                                fetchPosts(parseInt(currentPage), 1, true, null, post => {
+                                    addCardsInChunks(post, undefined, 1, container, false);
+                                    addPages(response['total_pages'],response['total_pages']);
+                                    const a = document.querySelector(`.pagination a[data-page="${response['total_pages']}"]`);
+                                    a.click();
+                                })
                             }
                         }
                     }
@@ -699,7 +709,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 card.querySelector('.content').innerText = text;
                                 let edited = card.querySelector('.edited');
                                 edited.innerText = 'Ред.'
-                                document.getElementById('editForm').remove;
+                                document.getElementById('editForm').remove();
                                 hideCards(card, true);
                             }
                         }
