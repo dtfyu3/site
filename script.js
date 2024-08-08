@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     let userId = null;
-    let currentPage = 1;
+    let currentPage;
     const limit = 10;
     var isCommentOpen = false;
     var isEditOpen = false;
@@ -94,6 +94,26 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeModal(event) {
         modal.style.display = "none";
     }
+    function getPageCount(){
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'api.php?get_action=getPageCount', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({}));
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try{
+                    const response = JSON.parse(xhr.response);
+                    const page_count = response['page_count'];
+                    addPages(page_count,page_count);
+                    currentPage = page_count;
+                    fetchPosts(currentPage);
+                }
+                catch(e){
+                    console.error('Error parsing JSON:', e);
+                }
+            }
+        }
+    }
     async function fetchPosts(page = 1, limit = null, offset = false, query = null, callback) {
         if (offset == false) container.innerHTML = '';
         let order;
@@ -112,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-
             const data = await response.json();
             if (data.success) {
                 if (!callback) {
@@ -120,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     count.textContent = data['total_result'];
                     if (data['posts'].length > 0) {
                         addCardsInChunks(data['posts'], 10, undefined, container, false);
-                        addPages(total_pages);
+                        if(document.getElementById('pagination').children.length == 0) addPages(total_pages);
                     }
                     else {
                         const span = document.createElement('span');
@@ -151,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const a = document.querySelector(`.pagination a[data-page="${page}"]`);
         a.classList.add('current');
+        currentPage = page;
     }
 
     function createCard(post, isComment) {
@@ -269,7 +289,8 @@ document.addEventListener('DOMContentLoaded', function () {
             })
         }
     }
-    fetchPosts(currentPage);
+    getPageCount();
+    // fetchPosts(currentPage);
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
         if (!isCommentOpen) {
