@@ -175,38 +175,54 @@ function update($user_id, $card_id, $action, $is_comment)
 function putPost($user_id, $content)
 {
     $conn = getDbConnection();
+    $conn->begin_transaction();
     $limit = 10;
     $content = strip_tags($content);
     $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
     $date =  date('Y-m-d H:i:s');
-    $stmt = $conn->prepare('insert into cards (author, content, date) values (?,?,?)');
-    $stmt->bind_param('iss', $user_id, $content, $date);
-    if ($stmt->execute()) {
-        $response['success'] = true;
-        $response['data'] = [
-            'id' => $stmt->insert_id,
-            'content' => $content,
-            'date' => $date,
-            'score' => 0,
-            'user_vote' => null,
-        ];
-    } else {
-        $response['error'] = 'Database error: ' . $stmt->error;
+    try {
+        $stmt = $conn->prepare('insert into cards (author, content, date) values (?,?,?)');
+        $stmt->bind_param('iss', $user_id, $content, $date);
+        $stmt->execute();
+        $sql = ("select cards.id, name as author, date, edit_date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count, (select count(*) from user_votes u where u.card_id = cards.id) as total_votes from cards 
+        inner join users on users.id = cards.author left join user_votes on cards.id = user_votes.card_id and user_votes.user_id = ? order by id desc limit 1");
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $response['success'] = true;
+            $response['data'] = [
+                'id' => $row['id'],
+                'author' => $row['author'],
+                'date' => $row['date'],
+                'edit_date' => $row['edit_date'],
+                'content' => $row['content'],
+                'score' => $row['score'],
+                'user_vote' => $row['user_vote'],
+                'comment_count' => $row['comment_count'],
+                'total_votes' => $row['total_votes'],
+            ];
+        }
+        $stmt = $conn->query('select count(*) from cards');
+        $total_result = $stmt->fetch_column();
+        $response['total_result'] = $total_result;
+        $stmt = $conn->prepare('select name from users where id = ?');
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $response['data']['author'] = $result->fetch_column();
+        $total = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
+        $total_pages = ceil($total / $limit);
+        $response['total_pages'] = $total_pages;
+        $stmt->close();
+        $conn->commit();
+        $conn->close();
+        echo json_encode($response);
+    } catch (Exception $e) {
+        $response['error'] = $e->getMessage();
+        $conn->rollback();
     }
-    $stmt = $conn->query('select count(*) from cards');
-    $total_result = $stmt->fetch_column();
-    $response['total_result'] = $total_result;
-    $stmt = $conn->prepare('select name from users where id = ?');
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $response['data']['author'] = $result->fetch_column();
-    $total = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
-    $total_pages = ceil($total / $limit);
-    $response['total_pages'] = $total_pages;
-    $stmt->close();
-    $conn->close();
-    echo json_encode($response);
 }
 function putComment($user_id, $card_id, $content)
 {
@@ -336,7 +352,8 @@ function updateCard($card_id, $content, $is_comment = null)
         echo json_encode($response);
     }
 }
-function getPageCount(){
+function getPageCount()
+{
     $conn = getDbConnection();
     global $post_num;
     $total_result = $conn->query("select count(*) as total_result from cards")->fetch_assoc()['total_result'];
@@ -386,7 +403,7 @@ if ($get_action != null) {
         updateCard($data['card_id'], $data['content']);
     } elseif ($get_action == 'search') {
         getPosts($user_id, $data['page'], $data['limit'], $data['offset'], $data['query'], $data['order']);
-    } elseif($get_action == 'getPageCount') getPageCount(); 
+    } elseif ($get_action == 'getPageCount') getPageCount();
     else {
         $response = ['error' => 'Invalid action'];
         echo json_encode($response);
