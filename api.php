@@ -35,6 +35,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param('iii', $user_id, $start, $limit);
             } else {
+                $query = htmlspecialchars($query);
                 $query = '%' . $query . '%';
                 $total_result = "select count(*) as total_result from ($sql where content like ? order by date $order) as a";
                 $stmt = $conn->prepare($total_result);
@@ -54,6 +55,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param('ii', $start, $limit);
             } else {
+                $query = htmlspecialchars($query);
                 $query = '%' . $query . '%';
                 $total_result = "select count(*) as total_result from ($sql where content like ? order by date $order) as a";
                 $stmt = $conn->prepare($total_result);
