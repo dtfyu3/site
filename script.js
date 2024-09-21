@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         date = `${day}-${month}-${year}`;
+        post.content = post.content.replace(/\n/g, '<br>');
         const edited = (post.edit_date != null) ? '<div class="edited" id="edited">Ред.</div>' : '<div class="edited" id="edited"></div>';
         let deleteDiv = (userName != null && userName === post.author) ? '<div class="delete_container"><button class="delete"><img src="images/delete.png" class="icon"></img></button></div>' : '';
         let editDiv = (userName != null && userName === post.author && !isComment) ? '<div class="edit_container"><button class="edit"><img src="images/edit.png" class="icon"></img></button></div>' : '';
@@ -731,6 +732,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 let edited = card.querySelector('.edited');
                                 edited.innerText = 'Ред.'
                                 document.getElementById('editForm').remove();
+                                isEditOpen = !isEditOpen;
                                 hideCards(card, true);
                             }
                         }
