@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const limit = 10;
     var isCommentOpen = false;
     var isEditOpen = false;
+    let currentScroll = 0;
     const container = document.querySelector('.cards');
     const comments_list = document.getElementById('comments_list');
     const modal = document.getElementsByClassName('modal')[0];
@@ -295,19 +296,63 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
         if (!isCommentOpen) {
+            currentScroll = window.scrollY;
             if (isEditOpen == false) hideCards(card, isCommentOpen);
             fetchComments(card.dataset['id'], false);
             document.getElementById('comments_section').classList.remove('hidden');
             comments_list.classList.remove('hidden');
             isCommentOpen = true;
+            // if(card.querySelector('.comment_count span').textContent > 0){
+            //     fetchComments(card.dataset['id'], false,comments=>{
+            //         addCardsInChunks(comments, 10, undefined, comments_list, true);
+            //         observeCommentsLoading(comments_list, () => {
+            //             scrollIfNeeded(); 
+            //         });
+            //     });
+            // }
+            // else{
+                
+            // }
         }
         else {
             if (isEditOpen == false) hideCards(card, isCommentOpen);
             comments_list.innerHTML = '';
             document.getElementById('comments_section').classList.add('hidden');
             isCommentOpen = false;
+            // setTimeout(() => {
+            //     window.scrollTo({
+            //         top: currentScroll,
+            //         behavior: 'smooth' 
+            //     });
+            // }, 0);
         }
     };
+    // function observeCommentsLoading(commentsListElement, callback) {
+    //     const observer = new MutationObserver((mutations) => {
+    //         let commentsAdded = false;
+    //         mutations.forEach(mutation => {
+    //             if (mutation.addedNodes.length > 0) {
+    //                 commentsAdded = true;
+    //             }
+    //         });
+    //         if (commentsAdded) {
+    //             observer.disconnect();
+    //             callback(); 
+    //         }
+    //     });
+    
+    //     observer.observe(commentsListElement, { childList: true, subtree: true });
+    // }
+    function scrollIfNeeded(){
+        const pageHeight = document.documentElement.scrollHeight;
+        const windowHeight = window.innerHeight;
+        if (pageHeight > windowHeight) {
+            window.scrollTo({
+                top: pageHeight,
+                behavior: 'smooth'
+            });
+        }
+    }
     function hideCards(card, isCommentOpen) {
         let sibling = card.closest('li').nextElementSibling;
         if (!isCommentOpen) {
@@ -340,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     try {
                         const response = JSON.parse(xhr.response);
                         comments = response['comments'];
-                        if (!flag) addCardsInChunks(comments, 10, undefined, comments_list, true);
+                        if (!callback) addCardsInChunks(comments, 10, undefined, comments_list, true);
                         else {
                             callback(comments);
                         }
@@ -450,10 +495,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validateMessage(content, false)) {
             return;
         }
-        // if (currentPage != 1) {
-        //     currentPage = 1;
-        //     document.querySelector(`.pagination a[data-page="${1}"]`).click();
-        // }
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=putPost', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -675,6 +716,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleEdit(event) {
         const card = event.currentTarget.closest('.card');
         if (isEditOpen == false) {
+            currentScroll = window.scrollY;
             isEditOpen = true;
             let text = card.querySelector('.content').innerText;
             hideCards(card, false);
@@ -704,9 +746,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 closeEdit(card);
             });
             container.append(form);
+            scrollIfNeeded();
         }
         else {
             closeEdit(card);
+            setTimeout(() => {
+                window.scrollTo({
+                    top: currentScroll,
+                    behavior: 'smooth'
+                });
+            }, 0);
         }
 
         function updateCard(text, card_id, card) {
