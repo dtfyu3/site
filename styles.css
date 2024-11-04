@@ -6,6 +6,7 @@ body {
     padding: 0;
     font-family: Arial, Helvetica, sans-serif;
 }
+
 .search-container {
     display: flex;
     justify-content: center;
@@ -32,7 +33,9 @@ body {
 #searchInput:focus {
     border-color: #007bff;
 }
-.searchButton,.resetButton {
+
+.searchButton,
+.resetButton {
     padding: 10px 20px;
     font-size: 16px;
     border: 2px solid #007bff;
@@ -44,6 +47,7 @@ body {
     width: fit-content;
     margin: 0 auto;
 }
+
 .disabled {
     background-color: gray;
     border-color: gray;
@@ -54,19 +58,24 @@ body {
     background-color: gray !important;
     border-color: gray !important;
 }
+
 .searchButton:hover {
     background-color: #0056b3;
     border-color: #0056b3;
 }
+
 .cards {
     margin-top: 20px;
 }
-.order{
+
+.order {
     margin-top: 5px;
 }
-select{
+
+select {
     font-size: 20px;
 }
+
 ul {
     display: block;
     list-style: none;
@@ -78,13 +87,15 @@ li:last-child .card {
     margin-bottom: 0;
 }
 
-#closeModal, .closeModal {
+#closeModal,
+.closeModal {
     font-size: 40px;
     color: red;
     vertical-align: middle;
 }
 
-#closeModal:hover, .closeModal:hover {
+#closeModal:hover,
+.closeModal:hover {
     cursor: pointer;
 }
 
@@ -100,7 +111,10 @@ li:last-child .card {
     min-width: 300px;
     padding: 10px;
 }
-
+.content{
+    max-height: 380px;
+    overflow-y: auto;
+}
 .card_footer {
     display: flex;
     justify-content: space-between;
@@ -156,11 +170,13 @@ li:last-child .card {
 .comments_list .card hr {
     margin: 0px;
 }
-.edited{
+
+.edited {
     font-size: 12px;
     /* width: fit-content; */
     text-align: right;
 }
+
 .comments_list .card {
     background-color: rgb(206, 200, 200);
     margin-left: 10px;
@@ -265,7 +281,8 @@ hr {
     padding: 0px;
 }
 
-.delete_container, .edit_container {
+.delete_container,
+.edit_container {
     width: fit-content;
     height: fit-content;
     display: inline-block;
@@ -275,32 +292,38 @@ hr {
     display: flex;
     justify-content: space-between
 }
-.card_header_buttons{
-width: fit-content;
+
+.card_header_buttons {
+    width: fit-content;
 }
-.divider{
+
+.divider {
     width: 10px;
     height: 100%;
     display: inline-block;
 }
 
-button.delete, button.edit {
+button.delete,
+button.edit {
     padding: 0px;
 }
 
-.delete img, .edit img {
+.delete img,
+.edit img {
     width: 20px;
     height: 20px;
     filter: invert(0%) sepia(100%) saturate(1000%) hue-rotate(0deg) brightness(100%) contrast(100%);
     transition: filter 0.3s ease;
 }
 
-.delete img:hover{
+.delete img:hover {
     filter: invert(26%) sepia(95%) saturate(7488%) hue-rotate(0deg) brightness(103%) contrast(103%);
 }
-.edit img:hover{
-    filter: invert(26%) sepia(95%) saturate(7488%) hue-rotate(100deg) brightness(103%) contrast(103%);   
+
+.edit img:hover {
+    filter: invert(26%) sepia(95%) saturate(7488%) hue-rotate(100deg) brightness(103%) contrast(103%);
 }
+
 table {
     table-layout: auto;
     border-collapse: collapse;
@@ -398,11 +421,13 @@ button[data-voted='true'] img {
     margin-top: 20px;
     font-size: 20px;
 }
-.modal{
+
+.modal {
     margin: 0 auto;
     width: 100vw;
     height: 100vh;
 }
+
 .form {
     width: 100%;
     max-width: 600px;
@@ -412,7 +437,8 @@ button[data-voted='true'] img {
     background: #fff4a1;
     padding: 20px;
 }
-#editForm{
+
+#editForm {
     width: fit-content;
     max-width: 30vw;
     margin: 0 auto;
@@ -420,7 +446,8 @@ button[data-voted='true'] img {
     border-radius: 10px;
     padding: 10px;
 }
-#editForm textarea{
+
+#editForm textarea {
     width: 20vw;
     height: 10vh;
     max-height: 20vh;
@@ -430,6 +457,7 @@ button[data-voted='true'] img {
     margin-bottom: 0px;
     padding: 10px;
 }
+
 textarea {
     font-size: 20px;
     width: 100%;
@@ -574,6 +602,11 @@ input[type='submit'] {
     }
 }
 
+#pagination_container {
+    position: sticky;
+    top: 0;
+}
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -623,7 +656,11 @@ input[type='submit'] {
 }
 
 @media (max-width: 480px) {
-    body, textarea, input[type="submit"], select {
+
+    body,
+    textarea,
+    input[type="submit"],
+    select {
         font-size: 16px;
     }
 
@@ -705,10 +742,12 @@ input[type='submit'] {
     #logout {
         font-size: 14px;
     }
-    .search-container{
+
+    .search-container {
         max-width: 80vw;
         margin: 0 auto;
     }
+
     #searchForm {
         flex-direction: column;
         align-items: stretch;
@@ -730,13 +769,15 @@ input[type='submit'] {
         border-left: none;
         border-right: none;
     }
-    #editForm textarea{
+
+    #editForm textarea {
         width: 92%;
         height: 15vh;
         max-height: 15vh;
         padding: 10px;
     }
-    #editForm{
+
+    #editForm {
         margin: 0 auto;
         width: 85vw;
         max-width: 85vw;
@@ -770,6 +811,7 @@ input[type='submit'] {
         right: 0px;
         top: 5px;
     }
+
     .avatar {
         width: 40px;
         height: 40px;
@@ -848,13 +890,15 @@ input[type='submit'] {
         min-width: 85vw;
         max-width: 85vw;
     }
-    #editForm textarea{
+
+    #editForm textarea {
         width: 92%;
         height: 15vh;
         max-height: 15vh;
         padding: 10px;
     }
-    #editForm{
+
+    #editForm {
         margin: 0 auto;
         width: 85vw;
         max-width: 85vw;
@@ -867,11 +911,13 @@ input[type='submit'] {
         max-width: 85vw;
         min-width: 85vw;
     }
-    #editForm textarea{
+
+    #editForm textarea {
         width: 85vw;
         padding: 10px;
     }
-    #editForm{
+
+    #editForm {
         margin: 0 auto;
         max-width: 100%;
         padding: 10px;

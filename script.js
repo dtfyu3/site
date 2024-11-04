@@ -57,7 +57,8 @@ document.addEventListener('DOMContentLoaded', function () {
     register.addEventListener('click', handleRegister);
     logout.addEventListener('click', logOut);
     submitComment.addEventListener('click', putComment);
-    document.getElementById('pagination_container').addEventListener('click', changePage);
+    // document.getElementById('pagination_container').addEventListener('click', changePage);
+    // document.querySelectorAll('#pagination a').forEach (a => a.addEventListener('click',changePage));
     searchInput.addEventListener('input', handleSearchInput);
     searchButton.addEventListener('click', search);
     resetButton.addEventListener('click', resetSearch);
@@ -168,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
         for (let i = 1; i <= total_pages; i++) {
             var li = document.createElement('li');
             li.innerHTML = `<a href="#" data-page="${i}">${i}</a>`;
+            li.addEventListener('click',changePage);
             list.appendChild(li);
         }
         const a = document.querySelector(`.pagination a[data-page="${page}"]`);
@@ -517,7 +519,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (childcount + 1 > limit) { //if card to be added overfill the page
                         // container.removeChild(container.lastElementChild); //then remove last card
                         if (response['total_pages'] > document.getElementById('pagination').children.length) { //if insert leads to new page to be added
-                            addPages(response['total_pages']); //then get new number of pages
+                            addPages(response['total_pages'],response['total_pages']);   //then get new number of pages
+                            const a = document.querySelector(`.pagination a[data-page="${response['total_pages']}"]`);
+                            a.click();
                         }
                     }
                     count.textContent = response['total_result'];
@@ -589,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function () {
             minLength = 10;
             error = errorDiv;
         };
-        const maxLength = 1000;
+        const maxLength = 1500;
         error.textContent = '';
         if (message.length < minLength) {
             error.classList.add('show');
@@ -702,7 +706,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     addCardsInChunks(post, undefined, 1, container, false);
                                     addPages(response['total_pages'],response['total_pages']);
                                     const a = document.querySelector(`.pagination a[data-page="${response['total_pages']}"]`);
-                                    a.click();
+                                    // a.click();
                                 })
                             }
                         }
