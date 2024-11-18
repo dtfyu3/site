@@ -2,6 +2,7 @@
 // header('Content-Type: application/json');
 error_reporting();
 $post_num = 10;
+date_default_timezone_set('Europe/Moscow');
 function getDbConnection()
 {
     $servername = "localhost";
