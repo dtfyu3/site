@@ -1,6 +1,7 @@
-html{
+html {
     scroll-behavior: smooth;
 }
+
 body {
     font-size: 20px;
     text-align: center;
@@ -114,10 +115,12 @@ li:last-child .card {
     min-width: 300px;
     padding: 10px;
 }
-.content{
+
+.content {
     max-height: 380px;
     overflow-y: auto;
 }
+
 .card_footer {
     display: flex;
     justify-content: space-between;
@@ -926,6 +929,13 @@ input[type='submit'] {
         margin: 0 auto;
         max-width: 100%;
         padding: 10px;
+    }
+}
+
+@media (min-width: 1280px) and (max-width: 1920px) {
+    .card {
+        max-width: 35vw;
+        min-width: 35vw;
     }
 }
 
