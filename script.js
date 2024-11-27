@@ -826,7 +826,7 @@ document.addEventListener('DOMContentLoaded', function () {
             resetButton.classList.add('disabled');
             searchButton.classList.add('disabled');
             searchInput.dataset['searched'] = false;
-            fetchPosts();
+            getPageCount();
         }
     }
     function handleSearchInput() {
