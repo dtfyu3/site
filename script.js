@@ -191,9 +191,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        date = `${day}-${month}-${year}`;
+        date = `${day}.${month}.${year}`;
         post.content = post.content.replace(/\n/g, '<br>');
         const edited = (post.edit_date != null) ? '<div class="edited" id="edited">Ред.</div>' : '<div class="edited" id="edited"></div>';
+        const divider = (userName !== null && userName === post.author) ? '<div class="divider"></div>' : '';
         let deleteDiv = (userName != null && userName === post.author) ? '<div class="delete_container"><button class="delete"><img src="images/delete.png" class="icon"></img></button></div>' : '';
         let editDiv = (userName != null && userName === post.author && !isComment) ? '<div class="edit_container"><button class="edit"><img src="images/edit.png" class="icon"></img></button></div>' : '';
         if (!isComment) {
@@ -213,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="author"><span>${post.author}</span></div>
             <div class="card_header_buttons">
             ${editDiv}
-            <div class="divider"></div>
+            ${divider}
             ${deleteDiv}
             </div>
             </div>
