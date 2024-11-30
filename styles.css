@@ -56,7 +56,10 @@ body {
     background-color: gray;
     border-color: gray;
 }
-
+.disabled:active{
+    transform: none;
+    box-shadow: none;
+}
 .disabled:hover {
     cursor: not-allowed;
     background-color: gray !important;
