@@ -47,10 +47,10 @@ document.addEventListener('DOMContentLoaded', function () {
         open_modal.remove();
     }
 
-    resetButton.disabled = true;
-    resetButton.classList.add('disabled');
-    searchButton.disabled = true;
-    searchButton.classList.add('disabled');
+    // resetButton.disabled = true;
+    // resetButton.classList.add('disabled');
+    // searchButton.disabled = true;
+    // searchButton.classList.add('disabled');
 
     open_modal.addEventListener('click', openModal);
     close_modal.addEventListener('click', closeModal);
