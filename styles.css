@@ -129,7 +129,9 @@ li:last-child .card {
     justify-content: space-between;
     align-items: center;
 }
-
+.card_footer button{
+    user-select: none;
+}
 .message_count {
     padding: 0px;
 }
