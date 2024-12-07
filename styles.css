@@ -481,6 +481,7 @@ textarea {
     border-radius: 5px;
     height: 20vw;
     max-height: 20vw;
+    resize: none;
 }
 
 label {
