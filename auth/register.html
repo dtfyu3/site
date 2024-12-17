@@ -181,7 +181,7 @@
                             tomain.disabled = true;
                             tomain.classList.add('disabled');
                             localStorage.setItem('userId', data['data']['userId']);
-                            localStorage.setItem('userName', data['data']['userName']);
+                            localStorage.setItem('userName', data['data']['userName'].trim());
                             const notification = document.getElementById('notification');
                             notification.classList.add('show');
                             setTimeout(() => {
