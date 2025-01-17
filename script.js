@@ -1,3 +1,5 @@
+var isCommentOpen = false;
+var isEditOpen = false;
 function createSpinner(container) {
     const spinner_container = document.createElement("div");
     spinner_container.id = 'loading-spinner';
@@ -13,12 +15,32 @@ function createSpinner(container) {
 function removeSpinner() {
     if (document.getElementById('loading-spinner')) document.getElementById('loading-spinner').remove();
 }
+function closeComments(card) {
+    if (isEditOpen == false) hideCards(card, isCommentOpen);
+    comments_list.innerHTML = '';
+    document.getElementById('comments_section').classList.add('hidden');
+    isCommentOpen = false;
+}
+function hideCards(card, isCommentOpen) {
+    let sibling = card.closest('li').nextElementSibling;
+    if (!isCommentOpen) {
+        while (sibling) {
+            sibling.style.display = "none";
+            sibling = sibling.nextElementSibling;
+        }
+    }
+    else {
+        while (sibling) {
+            sibling.style.display = "list-item";
+            sibling = sibling.nextElementSibling;
+        }
+    }
+}
 document.addEventListener('DOMContentLoaded', function () {
     let userId = null;
     let currentPage;
     const limit = 10;
-    var isCommentOpen = false;
-    var isEditOpen = false;
+   
     let currentScroll = 0;
     const container = document.querySelector('.cards');
     const comments_list = document.getElementById('comments_list');
@@ -88,8 +110,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('.pagination .current').classList.remove('current');
         if (target.matches('.pagination a')) {
             event.preventDefault();
-            currentPage = parseInt(target.dataset['page']);
+            if (isEditOpen) closeEdit(container.querySelector('.card:last-of-type'));
+            if (isCommentOpen) closeComments(container.querySelector('.card:last-of-type'));
             container.innerHTML = '';
+            currentPage = parseInt(target.dataset['page']);
             const search = searchInput.value.trim();
             fetchPosts(currentPage, undefined, undefined, search).then(() => {
                 const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
@@ -365,6 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     //     observer.observe(commentsListElement, { childList: true, subtree: true });
     // }
+
     function scrollIfNeeded() {
         const pageHeight = document.documentElement.scrollHeight;
         const windowHeight = window.innerHeight;
@@ -375,21 +400,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
-    function hideCards(card, isCommentOpen) {
-        let sibling = card.closest('li').nextElementSibling;
-        if (!isCommentOpen) {
-            while (sibling) {
-                sibling.style.display = "none";
-                sibling = sibling.nextElementSibling;
-            }
-        }
-        else {
-            while (sibling) {
-                sibling.style.display = "list-item";
-                sibling = sibling.nextElementSibling;
-            }
-        }
-    }
+
     function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -825,14 +836,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         }
-
-        function closeEdit(card) {
-            isEditOpen = false;
-            container.querySelector('#editForm').remove();
-            if (!isCommentOpen) hideCards(card, true);
-        }
     }
-
+    function closeEdit(card) {
+        isEditOpen = false;
+        container.querySelector('#editForm').remove();
+        if (!isCommentOpen) hideCards(card, true);
+    }
     function search() {
         const searchForm = document.forms.searchForm;
         const formData = new FormData(searchForm);
