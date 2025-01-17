@@ -1,3 +1,14 @@
+function createSpinner() {
+    const spinner_container = document.createElement("div");
+    spinner_container.id = 'loading-spinner';
+    const spinner = document.createElement("div");
+    spinner.classList.add('spinner');
+    spinner_container.appendChild(spinner);
+    document.body.appendChild(spinner_container);
+}
+function removeSpinner(){
+    document.getElementById('loading-spinner').remove();
+}
 document.addEventListener('DOMContentLoaded', function () {
     let userId = null;
     let currentPage;
@@ -97,21 +108,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeModal(event) {
         modal.style.display = "none";
     }
-    function getPageCount(){
+    function getPageCount() {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=getPageCount', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({}));
         xhr.onload = function () {
             if (xhr.status >= 200 && xhr.status < 300) {
-                try{
+                try {
                     const response = JSON.parse(xhr.response);
                     const page_count = response['page_count'];
-                    addPages(page_count,page_count);
+                    addPages(page_count, page_count);
                     currentPage = page_count;
                     fetchPosts(currentPage);
                 }
-                catch(e){
+                catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
             }
@@ -123,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let option = select.selectedOptions[0].value;
         if (option == 'asc') order = 'asc';
         else order = null;
+        createSpinner();
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
@@ -142,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     count.textContent = data['total_result'];
                     if (data['posts'].length > 0) {
                         addCardsInChunks(data['posts'], 10, undefined, container, false);
-                        if(total_pages != document.getElementById('pagination').children.length) addPages(total_pages,page);
+                        if (total_pages != document.getElementById('pagination').children.length) addPages(total_pages, page);
                     }
                     else {
                         const span = document.createElement('span');
@@ -161,15 +173,18 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error:', error);
             return [];
         }
+        finally {
+            removeSpinner();
+        }
     }
 
-    function addPages(total_pages, page=currentPage) {
+    function addPages(total_pages, page = currentPage) {
         var list = document.getElementById('pagination');
         while (list.firstChild) { list.removeChild(list.firstChild) }
         for (let i = 1; i <= total_pages; i++) {
             var li = document.createElement('li');
             li.innerHTML = `<a href="#" data-page="${i}">${i}</a>`;
-            li.addEventListener('click',changePage);
+            li.addEventListener('click', changePage);
             list.appendChild(li);
         }
         const a = document.querySelector(`.pagination a[data-page="${page}"]`);
@@ -314,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
             //     });
             // }
             // else{
-                
+
             // }
         }
         else {
@@ -343,10 +358,10 @@ document.addEventListener('DOMContentLoaded', function () {
     //             callback(); 
     //         }
     //     });
-    
+
     //     observer.observe(commentsListElement, { childList: true, subtree: true });
     // }
-    function scrollIfNeeded(){
+    function scrollIfNeeded() {
         const pageHeight = document.documentElement.scrollHeight;
         const windowHeight = window.innerHeight;
         if (pageHeight > windowHeight) {
@@ -374,6 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function fetchComments(cardId, flag, callback) {
         let card = document.querySelector(`.cards .card[data-id="${cardId}"]`);
         if (card.querySelector('.comment_count span').textContent > 0) {
+            createSpinner();
             comments_list.innerHTML = '';
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'api.php?get_action=getComments', true);
@@ -394,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
+                    finally {removeSpinner();}
                 }
             }
 
@@ -520,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (childcount + 1 > limit) { //if card to be added overfill the page
                         // container.removeChild(container.lastElementChild); //then remove last card
                         if (response['total_pages'] > document.getElementById('pagination').children.length) { //if insert leads to new page to be added
-                            addPages(response['total_pages'],response['total_pages']);   //then get new number of pages
+                            addPages(response['total_pages'], response['total_pages']);   //then get new number of pages
                             const a = document.querySelector(`.pagination a[data-page="${response['total_pages']}"]`);
                             a.click();
                         }
@@ -705,7 +722,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (response['total_pages'] != document.getElementById('pagination').children.length) {
                                 fetchPosts(parseInt(currentPage), 1, true, null, post => {
                                     addCardsInChunks(post, undefined, 1, container, false);
-                                    addPages(response['total_pages'],response['total_pages']);
+                                    addPages(response['total_pages'], response['total_pages']);
                                     const a = document.querySelector(`.pagination a[data-page="${response['total_pages']}"]`);
                                     // a.click();
                                 })
