@@ -60,10 +60,12 @@ body {
     background-color: gray;
     border-color: gray;
 }
-.disabled:active{
+
+.disabled:active {
     transform: none;
     box-shadow: none;
 }
+
 .disabled:hover {
     cursor: not-allowed;
     background-color: gray !important;
@@ -74,13 +76,20 @@ body {
     background-color: #0056b3;
     border-color: #0056b3;
 }
+
 #loading-spinner {
-    position: fixed; /* Фиксированное позиционирование */
-    top: 50%; /* Позиционируем по вертикали */
-    left: 50%; /* Позиционируем по горизонтали */
-    transform: translate(-50%, -50%); /* Смещаем на половину ширины и высоты */
+    position: absolute; /* Абсолютное позиционирование */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background-color: rgba(255, 255, 255, 0.8); */
     z-index: 1000; /* Убедимся, что спиннер поверх других элементов */
-  }
+}
+
 .spinner {
     border: 4px solid #f3f3f3;
     border-top: 4px solid #3498db;
@@ -88,18 +97,26 @@ body {
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 .cards {
     margin-top: 20px;
 }
-.cards li:last-child{
+
+.cards li:last-child {
     margin-bottom: 20px;
 }
+
 .order {
     margin-top: 5px;
 }
@@ -154,14 +171,20 @@ li:last-child .card {
     justify-content: space-between;
     align-items: center;
 }
-.card_footer button{
+
+.card_footer button {
     user-select: none;
 }
+
 .message_count {
     padding: 0px;
 }
 
 .comments_section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
     margin: 0 auto;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -642,10 +665,10 @@ input[type='submit'] {
 }
 
 #pagination_container {
-    position: sticky;
     top: 0;
-    overflow-x: auto; /* Добавляем горизонтальную прокрутку */
-    white-space: nowrap; 
+    overflow-x: auto;
+    /* Добавляем горизонтальную прокрутку */
+    white-space: nowrap;
     margin: 0px;
     padding: 0px;
     text-align: center;
