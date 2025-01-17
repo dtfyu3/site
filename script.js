@@ -1,13 +1,17 @@
-function createSpinner() {
+function createSpinner(container) {
     const spinner_container = document.createElement("div");
     spinner_container.id = 'loading-spinner';
     const spinner = document.createElement("div");
     spinner.classList.add('spinner');
     spinner_container.appendChild(spinner);
-    document.body.appendChild(spinner_container);
+    if (!container.classList.contains('comments_section')) container.appendChild(spinner_container);
+    else {
+        container.prepend(spinner_container);
+        spinner_container.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+    }
 }
-function removeSpinner(){
-    document.getElementById('loading-spinner').remove();
+function removeSpinner() {
+    if (document.getElementById('loading-spinner')) document.getElementById('loading-spinner').remove();
 }
 document.addEventListener('DOMContentLoaded', function () {
     let userId = null;
@@ -134,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let option = select.selectedOptions[0].value;
         if (option == 'asc') order = 'asc';
         else order = null;
-        createSpinner();
+        createSpinner(document.body);
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
@@ -386,10 +390,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
-    function fetchComments(cardId, flag, callback) {
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function fetchComments(cardId, flag, callback) {
         let card = document.querySelector(`.cards .card[data-id="${cardId}"]`);
         if (card.querySelector('.comment_count span').textContent > 0) {
-            createSpinner();
+            createSpinner(document.getElementById('comments_section'));
+            // await delay(3000);
             comments_list.innerHTML = '';
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'api.php?get_action=getComments', true);
@@ -410,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
-                    finally {removeSpinner();}
+                    finally { removeSpinner(); }
                 }
             }
 
