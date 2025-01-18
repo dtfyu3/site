@@ -1,5 +1,6 @@
 var isCommentOpen = false;
 var isEditOpen = false;
+const default_notification_text = 'Сообщение успешно отправлено!';
 function createSpinner(container) {
     const spinner_container = document.createElement("div");
     spinner_container.id = 'loading-spinner';
@@ -341,6 +342,11 @@ document.addEventListener('DOMContentLoaded', function () {
     getPageCount();
     function handleMessageClick(event) {
         const card = event.currentTarget.closest('.card');
+        const notification = document.getElementById('notification');
+        if(isEditOpen){
+            showNotification('Сначала закройте форму редактирования!',250,600,'#af8a39');
+            return;
+        }
         if (!isCommentOpen) {
             currentScroll = window.scrollY;
             if (isEditOpen == false) hideCards(card, isCommentOpen);
@@ -550,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.reset();
                     const arr = [];
                     arr.push(data);
-                    showNotification();
+                    showNotification(default_notification_text);
                     const childcount = container.querySelectorAll('li').length;
                     if (childcount + 1 <= limit) addCardsInChunks(arr, undefined, 1, container, false);
                     if (childcount + 1 > limit) { //if card to be added overfill the page
@@ -599,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         arr.push(data);
                         addCardsInChunks(arr, undefined, 0, comments_list, true);
                         updateCommentsCount(card, response['comments_count']);
-                        showNotification();
+                        showNotification(default_notification_text);
                         textarea.value = '';
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
@@ -613,15 +619,18 @@ document.addEventListener('DOMContentLoaded', function () {
         c.textContent = comments_count;
 
     }
-    function showNotification() {
+    function showNotification(text, t1 = 1000, t2 = 1500, background = '#4CAF50') {
         notification.classList.add('show');
+        notification.innerHTML = text;
+        notification.innerText = text;
+        notification.style.backgroundColor = background;
         setTimeout(() => {
             notification.classList.add('hide');
-        }, 1000);
+        }, t1);
         setTimeout(() => {
             notification.classList.remove('show');
             notification.classList.remove('hide');
-        }, 1500);
+        }, t2);
     }
     function validateMessage(message, isComment) {
         var error = errorComment;
@@ -756,6 +765,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function handleEdit(event) {
         const card = event.currentTarget.closest('.card');
+        if(isCommentOpen){
+            showNotification('Сначала закройте комментарии!',250,600,'#af8a39');
+            return;
+        }
         if (isEditOpen == false) {
             currentScroll = window.scrollY;
             isEditOpen = true;
@@ -817,7 +830,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         try {
                             const response = JSON.parse(xhr.response);
                             if (response.success === true) {
-                                showNotification();
+                                showNotification(default_notification_text);
                                 card.querySelector('.content').innerText = text;
                                 let edited = card.querySelector('.edited');
                                 edited.innerText = 'Ред.'
