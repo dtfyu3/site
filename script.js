@@ -527,10 +527,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         function updateScore(postId, newScore, isComment = false) {
             const list = !isComment ? container : comments_list;
-            list.querySelector(`.card[data-id="${postId}"] .card_footer .actions tr .score span`).textContent = newScore;
             let card = list.querySelector(`.card[data-id="${postId}"]`);
+            card.querySelector('.card_footer .actions tr .score span').textContent = newScore;
             card.dataset['score'] = newScore;
-            handleScoreChange(document.querySelector(`.card[data-id="${postId}"] .card_footer .actions tr .score span`));
+            handleScoreChange(card.querySelector('.card_footer .actions tr .score span'));
         }
     }
     function putPost() {
