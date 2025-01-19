@@ -282,6 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return li;
     }
     function addCardsInChunks(posts, chunkSize = 1, flag = 0, container, isComment) {
+        return new Promise ((resolve)=> {
         let index = 0;
         function addNextChunk() {
             const fragment = document.createDocumentFragment();
@@ -290,6 +291,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fragment.appendChild(card);
                 index++;
             }
+            if (index => posts.length) resolve();
             if (!flag) container.prepend(fragment);
             else container.appendChild(fragment);
             HandleCardsChange();
@@ -301,6 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
         requestAnimationFrame(addNextChunk);
+        });
     }
     function handleScoreChange(target) {
         span = target;
@@ -349,11 +352,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (!isCommentOpen) {
             currentScroll = window.scrollY;
-            if (isEditOpen == false) hideCards(card, isCommentOpen);
+            hideCards(card, isCommentOpen);
             fetchComments(card.dataset['id'], false);
             document.getElementById('comments_section').classList.remove('hidden');
             comments_list.classList.remove('hidden');
             isCommentOpen = true;
+            scrollIfNeeded();
             // if(card.querySelector('.comment_count span').textContent > 0){
             //     fetchComments(card.dataset['id'], false,comments=>{
             //         addCardsInChunks(comments, 10, undefined, comments_list, true);
@@ -367,9 +371,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // }
         }
         else {
-            if (isEditOpen == false) hideCards(card, isCommentOpen);
-            comments_list.innerHTML = '';
-            document.getElementById('comments_section').classList.add('hidden');
+            hideCards(card, isCommentOpen);
             isCommentOpen = false;
             // setTimeout(() => {
             //     window.scrollTo({
@@ -377,8 +379,28 @@ document.addEventListener('DOMContentLoaded', function () {
             //         behavior: 'smooth' 
             //     });
             // }, 0);
+            // document.getElementById('comments_section').classList.add('hidden');
+            // comments_list.innerHTML = '';
+            closeComments(currentScroll);
         }
+        
     };
+    function closeComments(currentScroll){
+          const onScroll = () => {
+            if (window.scrollY === currentScroll) {
+              window.removeEventListener('scroll', onScroll); // Удаляем обработчик события
+              document.getElementById('comments_section').classList.add('hidden'); // Скрываем секцию
+              comments_list.innerHTML = ''; // Очищаем список комментариев
+            }
+          };
+        
+          // Добавляем обработчик события scroll
+          window.addEventListener('scroll', onScroll);
+          window.scrollTo({
+            top: currentScroll,
+            behavior: 'smooth'
+          });
+    }
     // function observeCommentsLoading(commentsListElement, callback) {
     //     const observer = new MutationObserver((mutations) => {
     //         let commentsAdded = false;
@@ -424,18 +446,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 user_id: userId
             }));
 
-            xhr.onload = function () {
+            xhr.onload = async function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const response = JSON.parse(xhr.response);
                         comments = response['comments'];
-                        if (!callback) addCardsInChunks(comments, 10, undefined, comments_list, true);
+                        if (!callback) await addCardsInChunks(comments, 10, undefined, comments_list, true);
                         else {
                             callback(comments);
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
-                    finally { removeSpinner(); }
+                    finally { removeSpinner(); scrollIfNeeded();}
                 }
             }
 
@@ -548,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function () {
             content: content,
         }));
         let data;
-        xhr.onload = function () {
+        xhr.onload = async function () {
             if (xhr.status >= 200 && xhr.status < 300) {
                 try {
                     const response = JSON.parse(xhr.response);
@@ -558,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     arr.push(data);
                     showNotification(default_notification_text);
                     const childcount = container.querySelectorAll('li').length;
-                    if (childcount + 1 <= limit) addCardsInChunks(arr, undefined, 1, container, false);
+                    if (childcount + 1 <= limit) {await addCardsInChunks(arr, undefined, 1, container, false); scrollIfNeeded();}
                     if (childcount + 1 > limit) { //if card to be added overfill the page
                         // container.removeChild(container.lastElementChild); //then remove last card
                         if (response['total_pages'] > document.getElementById('pagination').children.length) { //if insert leads to new page to be added
@@ -769,7 +791,7 @@ document.addEventListener('DOMContentLoaded', function () {
             showNotification('Сначала закройте комментарии!',250,600,'#af8a39');
             return;
         }
-        if (isEditOpen == false) {
+        if (!isEditOpen) {
             currentScroll = window.scrollY;
             isEditOpen = true;
             let text = card.querySelector('.content').innerText;
