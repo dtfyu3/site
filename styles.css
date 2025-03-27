@@ -78,7 +78,7 @@ body {
 }
 
 #loading-spinner {
-    position: absolute; 
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -86,7 +86,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; 
+    z-index: 1000;
 }
 
 .spinner {
@@ -482,11 +482,7 @@ button[data-voted='true'] img {
     font-size: 20px;
 }
 
-.modal {
-    margin: 0 auto;
-    width: 100vw;
-    height: 100vh;
-}
+
 
 .form {
     width: 100%;
@@ -551,6 +547,43 @@ input[type='submit'] {
     display: none;
 }
 
+.theme-toggle {
+    background-color: transparent;
+    padding: 0px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+}
+
+.theme-toggle .icon {
+    display: block;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    transition: all 0.3s ease;
+
+}
+
+.dark-theme {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.dark-theme .card,
+.dark-theme .card button {
+    background-color: #333;
+    color: #fff;
+}
+.dark-theme .modal{
+    background-color: rgba(51, 51, 51, 0.8);
+    border: 1px solid #333;
+}
+.dark-theme .profile input {
+    color: #fff;
+}
+.dark-theme .theme-toggle .icon{
+    filter: invert(1);
+}
 .notification {
     display: none;
     position: fixed;
@@ -853,6 +886,17 @@ input[type='submit'] {
 }
 
 @media (max-width: 768px) {
+    .theme-toggle {
+        height: fit-content;
+        position: fixed;
+        right: 0px;
+        top: 100px;
+    }
+    .theme-toggle .icon {
+        width: 25px;
+        height: 25px;
+    }
+    
     .card {
         max-width: 85vw;
         min-width: 85vw;
