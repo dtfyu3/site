@@ -47,6 +47,15 @@ function hideCards(card, isCommentOpen) {
         }
     }
 }
+function toggleTheme() {
+    document.body.classList.toggle("dark-theme");
+    if (document.body.classList.contains("dark-theme")) {
+        localStorage.setItem("theme", "dark");
+    } else {
+        localStorage.setItem("theme", "light");
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     let userId = null;
     let currentPage;
@@ -73,6 +82,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('searchInput');
     const select = document.querySelector('.order select');
 
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark-theme");
+    }
+    document.querySelector('.theme-toggle').addEventListener('click', toggleTheme);
     if (window.localStorage.getItem("userId") && window.localStorage.getItem("userName")) {
         userId = window.localStorage.getItem("userId");
         register.remove();
@@ -125,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (isEditOpen) closeEdit(card);
             if (isCommentOpen) {
                 isCommentOpen = !isCommentOpen;
-                comments_list.innerHTML = ''; 
+                comments_list.innerHTML = '';
                 // hideCards(card, isCommentOpen);
                 document.getElementById('comments_section').classList.add('hidden');
             }
