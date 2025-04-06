@@ -48,6 +48,7 @@ function hideCards(card, isCommentOpen) {
     }
 }
 function toggleTheme() {
+    document.body.style.transition = 'all 0.2s ease-in-out';
     document.body.classList.toggle("dark-theme");
     if (document.body.classList.contains("dark-theme")) {
         localStorage.setItem("theme", "dark");
@@ -153,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     function HandleCardsChange() {
-        const buttonsCollection = document.querySelectorAll('button:has(img)');
+        const buttonsCollection = document.querySelectorAll('.card button:has(img)');
         if (!window.localStorage.getItem("userId")) {
             for (const el of buttonsCollection) {
                 el.remove();
