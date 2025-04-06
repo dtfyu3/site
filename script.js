@@ -48,7 +48,7 @@ function hideCards(card, isCommentOpen) {
     }
 }
 function toggleTheme() {
-    document.body.style.transition = 'all 0.2s ease-in-out';
+    document.body.style.transition = 'background-color 0.2s ease-in-out';
     document.body.classList.toggle("dark-theme");
     if (document.body.classList.contains("dark-theme")) {
         localStorage.setItem("theme", "dark");
@@ -93,6 +93,12 @@ document.addEventListener('DOMContentLoaded', function () {
         logout.style.display = "inline-block";
         document.getElementById('profile').style.display = "block";
         open_modal.style.display = 'inline-block';
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
         let name = document.querySelector('#username span');
         name.innerHTML = window.localStorage.getItem("userName");
         avatarIcon.src = '/images/user.png';
@@ -162,10 +168,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     function openModal(event) {
-        modal.style.display = "block";
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('no-select');
     }
     function closeModal(event) {
-        modal.style.display = "none";
+        modal.classList.remove('active')
+        document.body.style.overflow = '';
     }
     function getPageCount() {
         const xhr = new XMLHttpRequest();
@@ -288,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="author"><span>${post.author}</span></div>
             <div class="card_header_buttons">
             ${editDiv}
-            ${divider}
             ${deleteDiv}
             </div>
             </div>
