@@ -51,9 +51,11 @@ body {
     color: #fff;
     border-radius: 0 4px 4px 0;
     cursor: pointer;
-    /* transition: background-color 0.3s ease, border-color 0.3s ease; */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
     width: fit-content;
     margin: 0 auto;
+    user-select: none;
+
 }
 
 .disabled {
@@ -140,6 +142,7 @@ li:last-child .card {
     font-size: 40px;
     color: red;
     vertical-align: middle;
+    user-select: none;
 }
 
 #closeModal:hover,
@@ -158,6 +161,7 @@ li:last-child .card {
     max-width: 20vw;
     min-width: 300px;
     padding: 10px;
+    transition: all 0.2s ease-in-out;
 }
 
 .content {
@@ -202,10 +206,12 @@ li:last-child .card {
 .comments_actions {
     display: flex;
     align-items: center;
-    /* Вертикальное выравнивание по центру */
     justify-content: center;
-    /* Горизонтальное выравнивание по центру */
     text-align: center;
+}
+
+span {
+    /* transition: all 0.1ms ease-in-out; */
 }
 
 .comments_section span {
@@ -272,6 +278,7 @@ li:last-child .card {
     height: 100%;
     width: 100%;
     border-radius: 50%;
+    user-select: none;
 }
 
 .profile {
@@ -346,15 +353,23 @@ hr {
     display: inline-block;
 }
 
+button,
+.icon,
+img.icon,input[type="button"] {
+    background-color: transparent;
+    -webkit-tap-highlight-color: transparent;
+}
+
 .card_header {
     display: flex;
     justify-content: space-between
 }
 
 .card_header_buttons {
+    display: flex;
+    gap: 20px;
     width: fit-content;
     user-select: none;
-    cursor: pointer;
 }
 
 .divider {
@@ -407,16 +422,26 @@ button {
     margin: 0 auto;
     padding: 8px 16px;
     border: none;
-    background-color: beige;
+    /* background-color: beige; */
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.icon:hover {
+.icon:hover,
+.icon:active,
+.icon:focus {
     transform: scale(1.2);
     transition: transform 0.2s ease-in-out;
+}
 
+.icon {
+    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 button:focus {
@@ -457,32 +482,82 @@ button[data-voted='true'] img {
 
 .modal {
     font-size: 20px;
-    display: none;
+    /* display: none; */
     position: fixed;
     z-index: 1;
     width: 100vw;
     height: 100vh;
     left: 0;
     top: 0;
-    border: 1px solid #ffa71c;
-    background: rgba(255, 244, 161, 0.8);
+    /* border: 1px solid #ffa71c; */
+    background: rgba(0, 0, 0, 0.8);
     padding: 20px;
-    border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+.modal.active {
+    display: block;
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal.active .modal_content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+body.no-select {
+    user-select: none;
 }
 
 .modal_content {
     margin: 0 auto;
     max-width: 600px;
     width: 90%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    user-select: none;
 }
 
 #openModal {
     margin-top: 20px;
     font-size: 20px;
+    background: linear-gradient(135deg, #6C63FF, #48C9B0);
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+    align-items: center;
 }
 
+#openModal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
 
+.openModal-button:active {
+    transform: scale(0.97);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.openModal-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.4);
+}
 
 .form {
     width: 100%;
@@ -515,6 +590,7 @@ button[data-voted='true'] img {
 }
 
 textarea {
+    box-sizing: border-box;
     font-size: 20px;
     width: 100%;
     padding: 10px;
@@ -533,14 +609,19 @@ label {
 }
 
 input[type='submit'] {
-    font-size: 20px;
-    margin: 0 auto;
-    background-color: #2a84e4;
+    background-color: #6C63FF;
     color: white;
-    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
     cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+    background-color: #5a52e6;
 }
 
 #get_action {
@@ -570,7 +651,7 @@ input[type='submit'] {
 }
 
 .dark-theme .card,
-.dark-theme .card button {
+.dark-theme .card {
     background-color: #333;
     color: #fff;
 }
@@ -578,6 +659,16 @@ input[type='submit'] {
 .dark-theme .modal {
     background-color: rgba(51, 51, 51, 0.8);
     border: 1px solid #333;
+}
+
+.dark-theme .modal_content,
+.dark-theme .modal_content textarea {
+    background-color: rgb(51, 51, 51);
+    color: white
+}
+
+.dark-theme .modal_content textarea::placeholder {
+    color: white
 }
 
 .dark-theme .profile input {
@@ -670,7 +761,9 @@ input[type='submit'] {
     animation: scroll-text 10s linear infinite;
     /* Запускаем анимацию */
 }
-
+.dark-theme #warning{
+    background-color: rgba(231, 185, 185, 0.8);
+}
 @keyframes scroll-text {
     0% {
         transform: translateX(100%);
@@ -686,7 +779,43 @@ input[type='submit'] {
 #register {
     font-size: 20px;
     margin-top: 20px;
+    display: inline-block;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #87dbf0;
+    border-color: #87dbf0;
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 50px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
 }
+
+#register:hover {
+    background-color: #67a0aa;
+    border-color: #67a0aa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#register:active {
+    transform: scale(0.98);
+}
+
+.dark-theme #register {
+    background-color: #1f3553;
+    border-color: #1f3553;
+}
+
+.dark-theme #register:hover {
+    background-color: #67a0aa;
+    border-color: #67a0aa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 
 @keyframes blink {
 
@@ -764,7 +893,8 @@ input[type='submit'] {
     body,
     textarea,
     input[type="submit"],
-    select {
+    select,
+    span {
         font-size: 16px;
     }
 
@@ -774,13 +904,16 @@ input[type='submit'] {
     }
 
     .modal_content {
-        max-width: 95vw;
-        min-width: 95vw;
+        /* max-width: 95vw;
+        min-width: 95vw; */
+        box-sizing: border-box;
+        width: 90%;
+        padding: 10px;
     }
 
-    .form {
-        max-width: 95vw;
-        min-width: 95vw;
+    form {
+        /* max-width: 95vw;
+        min-width: 95vw; */
     }
 
     textarea {
