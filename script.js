@@ -631,6 +631,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
+                 finally { removeSpinner(); }
             } else {
                 console.error('Request failed with status:', xhr.status);
             }
@@ -821,6 +822,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
+                    finally { removeSpinner(); }
                 }
             }
         }
