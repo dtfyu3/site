@@ -36,6 +36,7 @@ body {
     border-radius: 4px 0 0 4px;
     outline: none;
     transition: border-color 0.3s ease;
+    margin-right: 5px;
 }
 
 #searchInput:focus {
@@ -44,23 +45,26 @@ body {
 
 .searchButton,
 .resetButton {
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 16px;
     border: 2px solid #007bff;
     background-color: #007bff;
     color: #fff;
-    border-radius: 0 4px 4px 0;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    transition: all 0.3s ease;
     width: fit-content;
     margin: 0 auto;
     user-select: none;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
 
 }
 
 .disabled {
-    background-color: gray;
-    border-color: gray;
+    background-color: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .disabled:active {
@@ -70,13 +74,31 @@ body {
 
 .disabled:hover {
     cursor: not-allowed;
-    background-color: gray !important;
-    border-color: gray !important;
+    background-color: #ccc !important;
+    border-color: #ccc !important;
+    transform: none !important;
 }
 
-.searchButton:hover {
+.searchButton:hover:not(.disabled),
+.resetButton:hover:not(.disabled) {
     background-color: #0056b3;
     border-color: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+
+.searchButton:active:not(.disabled),
+.resetButton:active:not(.disabled) {
+    background-color: #004085;
+    border-color: #004085;
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.searchButton:focus,
+.resetButton:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.4);
 }
 
 #loading-spinner {
@@ -267,7 +289,7 @@ span {
 
 .avatar {
     border-radius: 50%;
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     width: 50px;
     height: 50px;
     margin: 0 auto;
@@ -355,7 +377,8 @@ hr {
 
 button,
 .icon,
-img.icon,input[type="button"] {
+img.icon,
+input[type="button"] {
     background-color: transparent;
     -webkit-tap-highlight-color: transparent;
 }
@@ -452,6 +475,7 @@ img.icon {
     display: block;
     width: 20px;
     height: 20px;
+    user-select: none;
 }
 
 .score,
@@ -473,7 +497,7 @@ button img.icon {
 
 button:active {
     transform: scale(0.95);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
 }
 
 button[data-voted='true'] img {
@@ -675,7 +699,7 @@ input[type="submit"]:hover {
     color: #fff;
 }
 
-.dark-theme .theme-toggle .icon {
+.dark-theme .theme-toggle .icon, .dark-theme .avatar img {
     filter: invert(1);
 }
 
@@ -761,9 +785,11 @@ input[type="submit"]:hover {
     animation: scroll-text 10s linear infinite;
     /* Запускаем анимацию */
 }
-.dark-theme #warning{
+
+.dark-theme #warning {
     background-color: rgba(231, 185, 185, 0.8);
 }
+
 @keyframes scroll-text {
     0% {
         transform: translateX(100%);
