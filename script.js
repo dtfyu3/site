@@ -1,5 +1,5 @@
-var isCommentOpen = false;
-var isEditOpen = false;
+let isCommentOpen = false;
+let isEditOpen = false;
 const default_notification_text = 'Сообщение успешно отправлено!';
 function createSpinner(container) {
     const spinner_container = document.createElement("div");
@@ -7,10 +7,18 @@ function createSpinner(container) {
     const spinner = document.createElement("div");
     spinner.classList.add('spinner');
     spinner_container.appendChild(spinner);
-    if (!container.classList.contains('comments_section')) container.appendChild(spinner_container);
+    if (!container.classList.contains('comments_list')){
+        spinner_container.style.position = 'fixed'; // Use fixed positioning
+        spinner_container.style.top = '50%';
+        spinner_container.style.left = '50%';
+        spinner_container.style.transform = 'translate(-50%, -50%)';
+        spinner_container.style.width = '100%';
+        spinner_container.style.height = '100%';
+        spinner_container.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        container.appendChild(spinner_container);
+    }
     else {
         container.prepend(spinner_container);
-        spinner_container.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
     }
 }
 function removeSpinner() {
@@ -67,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const comments_list = document.getElementById('comments_list');
     const modal = document.getElementsByClassName('modal')[0];
     const open_modal = document.getElementById('openModal');
+    const addNewPost = document.getElementById('putPost');
     const close_modal = document.getElementById('closeModal');
     const notification = document.getElementById('notification');
     const errorDiv = document.getElementById('error');
@@ -121,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // searchButton.classList.add('disabled');
 
     open_modal.addEventListener('click', openModal);
+    addNewPost.addEventListener('click', putPost);
     close_modal.addEventListener('click', closeModal);
     register.addEventListener('click', handleRegister);
     logout.addEventListener('click', logOut);
@@ -152,9 +162,11 @@ document.addEventListener('DOMContentLoaded', function () {
             container.innerHTML = '';
             currentPage = parseInt(target.dataset['page']);
             const search = searchInput.value.trim();
+            // createSpinner(document.body);
             fetchPosts(currentPage, undefined, undefined, search).then(() => {
                 const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
                 a.classList.add('current');
+                removeSpinner();
             });
 
         }
@@ -178,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.remove('no-select');
     }
     function getPageCount() {
+        createSpinner(document.body);
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=getPageCount', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -189,7 +202,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     const page_count = response['page_count'];
                     addPages(page_count, page_count);
                     currentPage = page_count;
-                    fetchPosts(currentPage);
+                    fetchPosts(currentPage).then(() => {
+                        removeSpinner();
+                    });
                 }
                 catch (e) {
                     console.error('Error parsing JSON:', e);
@@ -203,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let option = select.selectedOptions[0].value;
         if (option == 'asc') order = 'asc';
         else order = null;
-        createSpinner(document.body);
+        
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
@@ -243,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return [];
         }
         finally {
-            removeSpinner();
+            // removeSpinner();
         }
     }
 
@@ -363,9 +378,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.downvote').forEach(button =>
             button.addEventListener('click', handleVoteClick)
         );
-        document.querySelectorAll("input[type='submit']").forEach(submit =>
-            submit.addEventListener('click', putPost)
-        );
         const sp = document.querySelectorAll('.score span');
         document.querySelectorAll('.score span').forEach(span =>
             span.addEventListener('oncnahge', handleScoreChange)
@@ -392,11 +404,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!isCommentOpen) {
             currentScroll = window.scrollY;
             hideCards(card, isCommentOpen);
-            fetchComments(card.dataset['id'], false);
             document.getElementById('comments_section').classList.remove('hidden');
             comments_list.classList.remove('hidden');
+            fetchComments(card.dataset['id'], false);
+            
             isCommentOpen = true;
-            scrollIfNeeded();
+            // scrollIfNeeded();
             // if(card.querySelector('.comment_count span').textContent > 0){
             //     fetchComments(card.dataset['id'], false,comments=>{
             //         addCardsInChunks(comments, 10, undefined, comments_list, true);
@@ -418,8 +431,8 @@ document.addEventListener('DOMContentLoaded', function () {
             //         behavior: 'smooth' 
             //     });
             // }, 0);
-            // document.getElementById('comments_section').classList.add('hidden');
-            // comments_list.innerHTML = '';
+            document.getElementById('comments_section').classList.add('hidden');
+            comments_list.innerHTML = '';
             closeComments(currentScroll);
         }
 
@@ -459,9 +472,8 @@ document.addEventListener('DOMContentLoaded', function () {
     async function fetchComments(cardId, flag, callback) {
         let card = document.querySelector(`.cards .card[data-id="${cardId}"]`);
         if (card.querySelector('.comment_count span').textContent > 0) {
-            createSpinner(document.getElementById('comments_section'));
-            // await delay(3000);
             comments_list.innerHTML = '';
+            createSpinner(document.getElementById('comments_list'));
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'api.php?get_action=getComments', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
@@ -583,9 +595,11 @@ document.addEventListener('DOMContentLoaded', function () {
         let form = document.forms.putPost;
         const formData = new FormData(form);
         const content = formData.get('text').trim();
+        closeModal();
         if (!validateMessage(content, false)) {
             return;
         }
+        createSpinner(document.body);
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=putPost', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -625,7 +639,6 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Request error');
         };
 
-        modal.style.display = 'none';
     }
     function putComment(event) {
         const cards = container.querySelectorAll('li:not([style*="display: none"])');
@@ -728,6 +741,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleDelete(event) {
         const card = event.currentTarget.closest('.card');
         if (card.parentElement.parentElement.classList.contains('comments_list')) {
+            createSpinner(document.getElementById('comments_section'));
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'api.php?get_action=delete', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
@@ -748,11 +762,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
+                    finally { removeSpinner(); }
                 }
             }
         }
         else {
             if (confirm('Вы действительно хотите удалить данную запись?')) {
+                createSpinner(document.body);
                 if (isCommentOpen) {
                     document.getElementById('comments_section').classList.add('hidden');
                     hideCards(card, isCommentOpen);
@@ -799,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     addCardsInChunks(post, undefined, 1, container, false);
                                     addPages(response['total_pages'], response['total_pages']);
                                     const a = document.querySelector(`.pagination a[data-page="${response['total_pages']}"]`);
-                                    // a.click();
+                                    a.click();
                                 })
                             }
                         }
@@ -865,6 +881,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!validateMessage(text, false)) {
                     return;
                 }
+                createSpinner(card);
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', 'api.php?get_action=updateCard', true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
@@ -889,6 +906,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         catch (e) {
                             console.error('Error parsing JSON:', e);
                         }
+                        finally { removeSpinner(); }
                     }
                     else {
                         console.error('Request failed with status:', xhr.status);
