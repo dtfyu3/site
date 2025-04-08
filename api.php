@@ -5,10 +5,10 @@ $post_num = 10;
 date_default_timezone_set('Europe/Moscow');
 function getDbConnection()
 {
-    $servername = "localhost";
-    $username = "root";
-    $password = "1q2w3e4r5t6y0";
-    $dbname = "test";
+    $servername = getenv('DB_HOST');
+    $username = getenv('DB_USER');
+    $password = getenv('DB_PASSWORD');
+    $dbname = getenv('DB_NAME');
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
