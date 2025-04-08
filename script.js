@@ -175,6 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeModal(event) {
         modal.classList.remove('active')
         document.body.style.overflow = '';
+        document.body.classList.remove('no-select');
     }
     function getPageCount() {
         const xhr = new XMLHttpRequest();
