@@ -26,14 +26,6 @@ function getDbConnection($dbtype = 'mysql')
         die("Connection failed: " . $e->getMessage());
     }
 
-
-
-    // $conn = new mysqli($servername, $username, $password, $dbname);
-    // $connectionString = "host=$host port=$port dbname=$dbname user=$user password=$password";
-    // $conn = pg_connect($connectionString);
-    // if ($conn->connect_error) {
-    //     die("Connection failed: " . $conn->connect_error);
-    // }
 }
 function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $query = null, $order = null)
 {
@@ -152,27 +144,6 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
 }
 function unvote($conn, $user_id, $card_id, $is_comment)
 {
-    // if (!$is_comment) {
-    //     $votes_table = 'user_votes';
-    //     $card_or_comm_id = 'card_id';
-    //     $card_table = 'cards';
-    // } else {
-    //     $votes_table = 'comments_votes';
-    //     $card_or_comm_id = 'comment_id';
-    //     $card_table = 'comments';
-    // }
-    // $result = $conn->query("SELECT vote_type FROM $votes_table WHERE user_id = $user_id AND $card_or_comm_id = $card_id LIMIT 1");
-    // if ($result->num_rows > 0) {
-    //     $voteType = $result->fetch_assoc()['vote_type'];
-    //     if ($voteType === 'upvote') {
-    //         $conn->query("UPDATE $card_table SET score = score - 1 WHERE id = $card_id");
-    //     } elseif ($voteType === 'downvote') {
-    //         $conn->query("UPDATE $card_table SET score = score + 1 WHERE id = $card_id");
-    //     }
-    //     $stmt = $conn->prepare("DELETE FROM $votes_table WHERE user_id = ? AND $card_or_comm_id = ?");
-    //     $stmt->bind_param('ii', $user_id, $card_id);
-    //     $stmt->execute();
-    // }
     if (!$is_comment) {
         $votes_table = 'user_votes';
         $card_or_comm_id = 'card_id';
@@ -214,48 +185,6 @@ function unvote($conn, $user_id, $card_id, $is_comment)
 }
 function update($user_id, $card_id, $action, $is_comment)
 {
-    // $conn = getDbConnection();
-    // $conn->begin_transaction();
-    // if (!$is_comment) {
-    //     $votes_table = 'user_votes';
-    //     $card_or_comm_id = 'card_id';
-    //     $card_table = 'cards';
-    // } else {
-    //     $votes_table = 'comments_votes';
-    //     $card_or_comm_id = 'comment_id';
-    //     $card_table = 'comments';
-    // }
-    // $response = ['success' => false];
-    // try {
-    //     if ($action === 'upvote') {
-    //         unvote($conn, $user_id, $card_id, $is_comment);
-    //         $stmt = $conn->prepare("INSERT INTO $votes_table (user_id, $card_or_comm_id, vote_type) VALUES (?, ?, 'upvote')");
-    //         $stmt->bind_param('ii', $user_id, $card_id);
-    //         $stmt->execute();
-    //         $conn->query("UPDATE $card_table SET score = score + 1 WHERE id = $card_id");
-    //     } elseif ($action === 'downvote') {
-    //         unvote($conn, $user_id, $card_id, $is_comment);
-    //         $stmt = $conn->prepare("INSERT INTO $votes_table (user_id, $card_or_comm_id, vote_type) VALUES (?, ?, 'downvote')");
-    //         $stmt->bind_param('ii', $user_id, $card_id);
-    //         $stmt->execute();
-    //         $conn->query("UPDATE $card_table SET score = score - 1 WHERE id = $card_id");
-    //     } elseif ($action === 'unvote') {
-    //         unvote($conn, $user_id, $card_id, $is_comment);
-    //     } else {
-    //         throw new Exception('Invalid action');
-    //     }
-    //     $conn->commit();
-    //     $result = $conn->query("SELECT score FROM $card_table WHERE id = $card_id");
-    //     $newScore = $result->fetch_assoc()['score'];
-
-    //     $response['success'] = true;
-    //     $response['newScore'] = $newScore;
-    // } catch (Exception $e) {
-    //     $conn->rollback();
-    //     $response['error'] = $e->getMessage();
-    // }
-    // $conn->close();
-    // echo json_encode($response);
     $conn = getDbConnection();
     try {
         $conn->beginTransaction(); // Start a transaction
@@ -326,55 +255,6 @@ function update($user_id, $card_id, $action, $is_comment)
 
 function putPost($user_id, $content)
 {
-    // $conn = getDbConnection();
-    // $conn->begin_transaction();
-    // $limit = 10;
-    // $content = strip_tags($content);
-    // $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
-    // $date =  date('Y-m-d H:i:s');
-    // try {
-    //     $stmt = $conn->prepare('insert into cards (author, content, date) values (?,?,?)');
-    //     $stmt->bind_param('iss', $user_id, $content, $date);
-    //     $stmt->execute();
-    //     $sql = ("select cards.id, name as author, date, edit_date, content, score, vote_type as user_vote, (select count(*) from card_comments cc where cc.card_id = cards.id) as comment_count, (select count(*) from user_votes u where u.card_id = cards.id) as total_votes from cards 
-    //     inner join users on users.id = cards.author left join user_votes on cards.id = user_votes.card_id and user_votes.user_id = ? order by id desc limit 1");
-    //     $stmt = $conn->prepare($sql);
-    //     $stmt->bind_param('i', $user_id);
-    //     $stmt->execute();
-    //     $result = $stmt->get_result();
-    //     while ($row = $result->fetch_assoc()) {
-    //         $response['success'] = true;
-    //         $response['data'] = [
-    //             'id' => $row['id'],
-    //             'author' => $row['author'],
-    //             'date' => $row['date'],
-    //             'edit_date' => $row['edit_date'],
-    //             'content' => $row['content'],
-    //             'score' => $row['score'],
-    //             'user_vote' => $row['user_vote'],
-    //             'comment_count' => $row['comment_count'],
-    //             'total_votes' => $row['total_votes'],
-    //         ];
-    //     }
-    //     $stmt = $conn->query('select count(*) from cards');
-    //     $total_result = $stmt->fetch_column();
-    //     $response['total_result'] = $total_result;
-    //     $stmt = $conn->prepare('select name from users where id = ?');
-    //     $stmt->bind_param('i', $user_id);
-    //     $stmt->execute();
-    //     $result = $stmt->get_result();
-    //     $response['data']['author'] = $result->fetch_column();
-    //     $total = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
-    //     $total_pages = ceil($total / $limit);
-    //     $response['total_pages'] = $total_pages;
-    //     $stmt->close();
-    //     $conn->commit();
-    //     $conn->close();
-    //     echo json_encode($response);
-    // } catch (Exception $e) {
-    //     $response['error'] = $e->getMessage();
-    //     $conn->rollback();
-    // }
     $conn = getDbConnection();
     $limit = 10;
     $content = strip_tags($content);
@@ -446,40 +326,6 @@ function putPost($user_id, $content)
 }
 function putComment($user_id, $card_id, $content)
 {
-    // $conn = getDbConnection();
-    // $conn->begin_transaction();
-    // $content = strip_tags($content);
-    // $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
-    // $comment_id = null;
-    // $date =  date('Y-m-d H:i:s');
-    // try {
-    //     $stmt = $conn->prepare('insert into comments (user_id, content, date) values (?,?,?)');
-    //     $stmt->bind_param('iss', $user_id, $content, $date);
-    //     if ($stmt->execute()) {
-    //         $comment_id = $stmt->insert_id;
-    //         $response['data'] = [
-    //             'id' => $comment_id,
-    //             'content' => $content,
-    //             'date' => $date,
-    //             'score' => 0
-    //         ];
-    //     }
-    //     $stmt = $conn->prepare('insert into card_comments (card_id, comment_id) values (?,?)');
-    //     $stmt->bind_param('ii', $card_id, $comment_id);
-    //     $stmt->execute();
-    //     $stmt = $conn->prepare('select count(*) from card_comments where card_id = ?');
-    //     $stmt->bind_param('i', $card_id);
-    //     $stmt->execute();
-    //     $comments_count = $stmt->get_result()->fetch_column();
-    //     $conn->commit();
-    //     $response['success'] = true;
-    //     $response['comments_count'] = $comments_count;
-    // } catch (Exception $e) {
-    //     $conn->rollback();
-    //     $response['error'] = $e->getMessage();
-    // }
-    // $conn->close();
-    // echo json_encode($response);
     $conn = getDbConnection();
     $content = strip_tags($content);
     $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
@@ -532,44 +378,6 @@ function putComment($user_id, $card_id, $content)
 }
 function delete($card_id = null, $comment_id = null, $comment_list = null)
 {
-    // if (!is_null($card_id)) {
-    //     $limit = 10;
-    //     $conn = getDbConnection();
-    //     $conn->begin_transaction();
-    //     $stmt = $conn->prepare('delete from cards where id = ?');
-    //     $stmt->bind_param('i', $card_id);
-    //     try {
-    //         $stmt->execute();
-    //         if (!empty($comment_list) && !is_null($comment_list)) {
-    //             $str = implode(',', array_map('intval', $comment_list));
-    //             $sql = "delete from comments where id in ($str)";
-    //             $conn->query($sql);
-    //         }
-    //         $response['success'] = true;
-    //         $total = $conn->query('select count(*) as total from cards')->fetch_assoc()['total'];
-    //         $total_pages = ceil($total / $limit);
-    //         $response['total_pages'] = $total_pages;
-    //         $conn->commit();
-    //     } catch (Exception $e) {
-    //         $conn->rollback();
-    //         $response['error'] = $e->getMessage();
-    //     }
-    // } elseif (!is_null($comment_id)) {
-    //     try {
-    //         $conn = getDbConnection();
-    //         $conn->begin_transaction();
-    //         $stmt = $conn->prepare('delete from comments where id = ?');
-    //         $stmt->bind_param('i', $comment_id);
-    //         $stmt->execute();
-    //         $response['success'] = true;
-    //         $conn->commit();
-    //     } catch (Exception $e) {
-    //         $conn->rollback();
-    //         $response['error'] = $e->getMessage();
-    //     }
-    // }
-    // $conn->close();
-    // echo json_encode($response);
     $response = ['success' => false];
     $conn = getDbConnection();
     $limit = 10;
@@ -618,35 +426,6 @@ function delete($card_id = null, $comment_id = null, $comment_list = null)
 }
 function getComments($card_id, $user_id)
 {
-    //     $conn = getDbConnection();
-    //     $stmt = $conn->prepare('select c.id, name as author, content, date, score,vote_type as user_vote 
-    // from comments c 
-    // left join users on c.user_id = users.id 
-    // left join card_comments cc on c.id = cc.comment_id
-    // left join comments_votes cv on cv.user_id = ? and cv.comment_id = c.id
-    // where cc.card_id = ?
-    // order by date desc');
-    //     $stmt->bind_param('ii', $user_id, $card_id);
-    //     if ($stmt->execute()) {
-    //         $comments = array();
-    //         $result = $stmt->get_result();
-    //         while ($row = $result->fetch_assoc()) {
-    //             $comments[] = [
-    //                 'id' => $row['id'],
-    //                 'author' => $row['author'],
-    //                 'content' => $row['content'],
-    //                 'date' => $row['date'],
-    //                 'score' => $row['score'],
-    //                 'user_vote' => isset($row['user_vote']) ? $row['user_vote'] : null,
-    //             ];
-    //         }
-    //         $response['success'] = true;
-    //         $response['comments'] = $comments;
-    //     } else {
-    //         $response['error'] = 'Database error: ' . $stmt->error;
-    //     }
-    //     $conn->close();
-    //     echo json_encode($response);
     $conn = getDbConnection();
     $response = ['success' => false];
 
@@ -687,21 +466,6 @@ function getComments($card_id, $user_id)
 }
 function updateCard($card_id, $content, $is_comment = null)
 {
-    // if (is_null($is_comment)) {
-    //     $conn = getDbConnection();
-    //     $content = strip_tags($content);
-    //     $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
-    //     $date =  date('Y-m-d H:i:s');
-    //     $stmt = $conn->prepare('update cards set content = ?, edit_date = ? where id = ?');
-    //     $stmt->bind_param('ssi', $content, $date, $card_id);
-    //     try {
-    //         $stmt->execute();
-    //         $response['success'] = true;
-    //     } catch (Exception $e) {
-    //         $response['error'] = $e->getMessage();
-    //     }
-    //     echo json_encode($response);
-    // }
     if (is_null($is_comment)) {
         $conn = getDbConnection();
         $content = strip_tags($content);
@@ -724,11 +488,6 @@ function getPageCount()
 {
     $conn = getDbConnection();
     global $post_num;
-    // $total_result = $conn->query("select count(*) as total_result from cards")->fetch_assoc()['total_result'];
-    // $total_pages = ceil($total_result / $post_num);
-    // $response['success'] = true;
-    // $response['page_count'] = $total_pages;
-    // echo json_encode($response);
     try {
         $stmt = $conn->prepare("SELECT COUNT(*) as total_result FROM cards");
         $stmt->execute();
