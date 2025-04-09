@@ -52,7 +52,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
                 $total_result_stmt->execute();
                 $total_result = $total_result_stmt->fetch(PDO::FETCH_ASSOC)['total_result'];
 
-                $sql .= " ORDER BY date $order LIMIT :start, :limit";
+                $sql .= " ORDER BY date $order LIMIT :limit OFFSET :start";
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
                 $stmt->bindParam(':start', $start, PDO::PARAM_INT);
@@ -67,7 +67,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
                 $total_result_stmt->execute();
                 $total_result = $total_result_stmt->fetch(PDO::FETCH_ASSOC)['total_result'];
 
-                $sql .= " WHERE content LIKE :query ORDER BY date $order LIMIT :start, :limit";
+                $sql .= " WHERE content LIKE :query ORDER BY date $order LIMIT :limit OFFSET :start";
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
                 $stmt->bindParam(':query', $query, PDO::PARAM_STR);
@@ -87,7 +87,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
                 $total_result_stmt->execute();
                 $total_result = $total_result_stmt->fetch(PDO::FETCH_ASSOC)['total_result'];
 
-                $sql .= " ORDER BY date $order LIMIT :start, :limit";
+                $sql .= " ORDER BY date $order LIMIT :limit OFFSET :start"
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':start', $start, PDO::PARAM_INT);
                 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
@@ -100,7 +100,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
                 $total_result_stmt->execute();
                 $total_result = $total_result_stmt->fetch(PDO::FETCH_ASSOC)['total_result'];
 
-                $sql .= " WHERE content LIKE :query ORDER BY date $order LIMIT :start, :limit";
+                $sql .= " WHERE content LIKE :query ORDER BY date $order LIMIT :limit OFFSET :start";
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':query', $query, PDO::PARAM_STR);
                 $stmt->bindParam(':start', $start, PDO::PARAM_INT);
