@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.remove('no-select');
     }
     function getPageCount() {
-        createSpinner(document.body);
+        // createSpinner(document.body);
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'api.php?get_action=getPageCount', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let option = select.selectedOptions[0].value;
         if (option == 'asc') order = 'asc';
         else order = null;
-        
+        createSpinner(document.body);
         try {
             const response = await fetch('api.php?get_action=getPosts', {
                 method: 'POST',
@@ -743,7 +743,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleDelete(event) {
         const card = event.currentTarget.closest('.card');
         if (card.parentElement.parentElement.classList.contains('comments_list')) {
-            createSpinner(document.getElementById('comments_section'));
+            // createSpinner(document.getElementById('comments_section'));
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'api.php?get_action=delete', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
@@ -770,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         else {
             if (confirm('Вы действительно хотите удалить данную запись?')) {
-                createSpinner(document.body);
+                // createSpinner(document.body);
                 if (isCommentOpen) {
                     document.getElementById('comments_section').classList.add('hidden');
                     hideCards(card, isCommentOpen);
@@ -816,6 +816,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 fetchPosts(parseInt(currentPage), 1, true, null, post => {
                                     addCardsInChunks(post, undefined, 1, container, false);
                                     addPages(response['total_pages'], response['total_pages']);
+                                    removeSpinner();
                                     const a = document.querySelector(`.pagination a[data-page="${response['total_pages']}"]`);
                                     a.click();
                                 })
@@ -824,7 +825,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
-                    finally { removeSpinner(); }
                 }
             }
         }
