@@ -2,23 +2,25 @@ let isCommentOpen = false;
 let isEditOpen = false;
 const default_notification_text = 'Сообщение успешно отправлено!';
 function createSpinner(container) {
-    const spinner_container = document.createElement("div");
-    spinner_container.id = 'loading-spinner';
-    const spinner = document.createElement("div");
-    spinner.classList.add('spinner');
-    spinner_container.appendChild(spinner);
-    if (!container.classList.contains('comments_list')){
-        spinner_container.style.position = 'fixed'; // Use fixed positioning
-        spinner_container.style.top = '50%';
-        spinner_container.style.left = '50%';
-        spinner_container.style.transform = 'translate(-50%, -50%)';
-        spinner_container.style.width = '100%';
-        spinner_container.style.height = '100%';
-        spinner_container.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-        container.appendChild(spinner_container);
-    }
-    else {
-        container.prepend(spinner_container);
+    if (!document.getElementById('loading-spinner')) {
+        const spinner_container = document.createElement("div");
+        spinner_container.id = 'loading-spinner';
+        const spinner = document.createElement("div");
+        spinner.classList.add('spinner');
+        spinner_container.appendChild(spinner);
+        if (!container.classList.contains('comments_list')) {
+            spinner_container.style.position = 'fixed'; // Use fixed positioning
+            spinner_container.style.top = '50%';
+            spinner_container.style.left = '50%';
+            spinner_container.style.transform = 'translate(-50%, -50%)';
+            spinner_container.style.width = '100%';
+            spinner_container.style.height = '100%';
+            spinner_container.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            container.appendChild(spinner_container);
+        }
+        else {
+            container.prepend(spinner_container);
+        }
     }
 }
 function removeSpinner() {
@@ -166,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchPosts(currentPage, undefined, undefined, search).then(() => {
                 const a = document.querySelector(`.pagination a[data-page="${currentPage}"]`);
                 a.classList.add('current');
-                removeSpinner();
+                // removeSpinner();
             });
 
         }
@@ -257,9 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error:', error);
             return [];
         }
-        finally {
-            // removeSpinner();
-        }
+        removeSpinner();
     }
 
     function addPages(total_pages, page = currentPage) {
@@ -743,7 +743,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleDelete(event) {
         const card = event.currentTarget.closest('.card');
         if (card.parentElement.parentElement.classList.contains('comments_list')) {
-            // createSpinner(document.getElementById('comments_section'));
+            createSpinner(document.getElementById('comments_section'));
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'api.php?get_action=delete', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
@@ -770,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         else {
             if (confirm('Вы действительно хотите удалить данную запись?')) {
-                // createSpinner(document.body);
+                createSpinner(document.body);
                 if (isCommentOpen) {
                     document.getElementById('comments_section').classList.add('hidden');
                     hideCards(card, isCommentOpen);
