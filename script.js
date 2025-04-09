@@ -285,7 +285,8 @@ document.addEventListener('DOMContentLoaded', function () {
         let spanClass = '';
         let comment_counter = '';
         let comment_count = '';
-        const [dateStr, time] = post.date.split(' ');
+        let [dateStr, time] = post.date.split(' ');
+        if(time.indexOf('+')) time = time.split('+')[0];
         var date = new Date(dateStr + 'T' + time);
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -628,10 +629,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     count.textContent = response['total_result'];
+                    removeSpinner();
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
-                 finally { removeSpinner(); }
             } else {
                 console.error('Request failed with status:', xhr.status);
             }
@@ -819,6 +820,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     a.click();
                                 })
                             }
+                            else removeSpinner();
                         }
                     }
                     catch (e) { console.error('Error parsing JSON: ', e); }
