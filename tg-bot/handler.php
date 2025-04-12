@@ -77,8 +77,10 @@ if (isset($input['message'])) {
     exit;
 }
 function sendPaginatedPosts($chatId, int $page = 1){
-    $reply = "*📝 Последние записи:*\n\n";
-    $data = getPosts(limit: 3, page:$page);
+    $limit = 3;
+    $data = getPosts(limit: $limit, page:$page);
+    $total_pages = $data['total_pages'];
+    $reply = "*📝 Последние записи (Страница {$page}/{$total_pages}):*\n\n";
     if (isset($data['posts'])) {
         try {
             foreach ($data['posts'] as $post) {
