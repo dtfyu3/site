@@ -1,30 +1,26 @@
 <?php
 // header('Content-Type: application/json');
+require_once __DIR__ . '/tg-bot/telegram_api.php';
 error_reporting();
 $post_num = 10;
 date_default_timezone_set('Europe/Moscow');
 function getDbConnection($dbtype = 'mysql')
 {
     try {
-        if ($dbtype == 'mysql') {
-            $servername = getenv('DB_HOST');
-            $username = getenv('DB_USER');
-            $password = getenv('DB_PASS');
-            $dbname = getenv('DB_NAME');
-            $dsn = "mysql:host=$servername;dbname=$dbname";
-        } else if ($dbtype == 'pgsql') {
-            $host = getenv('DB_HOST');
-            $user = getenv('DB_USER');
-            $password = getenv('DB_PASS');
-            $dbname = getenv('DB_NAME');
-            $dsn = "pgsql:host={$host};port=5432;dbname={$dbname};sslmode=require";
-        }
-        $conn = new PDO($dsn, $username, $password);
+        // if ($dbtype == 'mysql') {
+        $servername = "localhost";
+        $user = "root";
+        $password = "1q2w3e4r5t6y0";
+        $dbname = "test";
+        $dsn = "mysql:host=$servername;dbname=$dbname";
+        $conn = new PDO($dsn, $user, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn;
     } catch (PDOException $e) {
         die("Connection failed: " . $e->getMessage());
     }
+
+
 
 }
 function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $query = null, $order = null)
@@ -32,8 +28,8 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
     $conn = getDbConnection();
     global $post_num;
     if (is_null($limit)) $limit = $post_num;
-    if ($offset == false) $start = ($page - 1) * $post_num;
-    else $start = ($page * $post_num) - 1;
+    if ($offset == false) $start = ($page - 1) * $limit;
+    else $start = ($page * $limit) - 1;
     $order = $order == null ? 'desc' : 'asc';
     $response = ['success' => false];
     try {
@@ -87,7 +83,11 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
                 $total_result_stmt->execute();
                 $total_result = $total_result_stmt->fetch(PDO::FETCH_ASSOC)['total_result'];
 
+<<<<<<< HEAD
+                $sql .= " ORDER BY date $order LIMIT :limit OFFSET :start";
+=======
                 $sql .= " ORDER BY date $order LIMIT :limit OFFSET :start"
+>>>>>>> 868230b469c4f2ece70cb5ca1d9baa905d4d48d8
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':start', $start, PDO::PARAM_INT);
                 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
@@ -141,6 +141,7 @@ function getPosts($user_id = null, $page = 1, $limit = null, $offset = false, $q
     }
 
     echo json_encode($response);
+    return $response;
 }
 function unvote($conn, $user_id, $card_id, $is_comment)
 {
@@ -230,7 +231,7 @@ function update($user_id, $card_id, $action, $is_comment)
         } else {
             throw new Exception('Invalid action');
         }
-        
+
 
         $resultStmt = $conn->prepare("SELECT score FROM $card_table WHERE id = :card_id");
         $resultStmt->bindParam(':card_id', $card_id, PDO::PARAM_INT);
@@ -315,14 +316,26 @@ function putPost($user_id, $content)
         $response['total_pages'] = $total_pages;
         $conn->commit();
         $response['success'] = true;
+        try {
+            $stmt = $conn->query("SELECT chat_id FROM subscribers");
+            $subscribers = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (PDOException $e) {
+            die("Ошибка при получении подписчиков: " . $e->getMessage());
+        }
     } catch (PDOException $e) {
         $conn->rollBack();
         $response['error'] = "Database error: " . $e->getMessage();
     } finally {
         $conn = null;
     }
-
-    echo json_encode($response);
+    $message = "📢 *Новая запись на сайте!* \n\n" .
+        "🔹 *Автор:* $author_name\n" .
+        "🔗 *Текст:* \n```\n$content\n```";
+        echo json_encode($response);
+    // sendTelegramMessage('451508739', $message);
+    foreach ($subscribers as $chatId) {
+        sendTelegramMessage($chatId, $message);
+    }
 }
 function putComment($user_id, $card_id, $content)
 {
@@ -350,7 +363,7 @@ function putComment($user_id, $card_id, $content)
         $stmt->execute();
         $stmt->closeCursor();
 
-     
+
         $stmt = $conn->prepare('SELECT COUNT(*) FROM card_comments WHERE card_id = :card_id');
         $stmt->bindParam(':card_id', $card_id, PDO::PARAM_INT);
         $stmt->execute();
@@ -509,10 +522,11 @@ $get_action = null;
 if (isset($_GET['get_action'])) $get_action = $_GET['get_action'];
 if ($get_action != null) {
     if ($get_action == 'getPosts') {
-        if (isset($data['user_id'])) {
+        // if (isset($data['user_id'])) {  
             $user_id = intval($data['user_id']);
             getPosts($user_id, $data['page'], $data['limit'], $data['offset'], $data['query'], $data['order']);
-        } else getPosts(page: $data['page'], query: $data['query'], order: $data['order']);
+        // } 
+        // else getPosts(page: $data['page'], query: $data['query'], order: $data['order']);
     } elseif ($get_action == 'update' && isset($data['user_id'])) {
         if (isset($data['card_id']) && isset($data['action'])) {
             $user_id = intval($data['user_id']);
