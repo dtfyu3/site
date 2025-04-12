@@ -521,12 +521,9 @@ $action = null;
 $get_action = null;
 if (isset($_GET['get_action'])) $get_action = $_GET['get_action'];
 if ($get_action != null) {
-    if ($get_action == 'getPosts') {
-        // if (isset($data['user_id'])) {  
-            $user_id = intval($data['user_id']);
+    if ($get_action == 'getPosts') { 
+            $user_id = isset($data['user_id']) ? intval($data['user_id']) : null;
             getPosts($user_id, $data['page'], $data['limit'], $data['offset'], $data['query'], $data['order']);
-        // } 
-        // else getPosts(page: $data['page'], query: $data['query'], order: $data['order']);
     } elseif ($get_action == 'update' && isset($data['user_id'])) {
         if (isset($data['card_id']) && isset($data['action'])) {
             $user_id = intval($data['user_id']);
