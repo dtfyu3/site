@@ -19,7 +19,7 @@ if (isset($input['callback_query'])) {
         $page = (int)$matches[1];
         sendPaginatedPosts($chatId, $page);
     }
-    file_get_contents("https://api.telegram.org/bot" . getenv("BOT_TOKEN") . "/answerCallbackQuery?callback_query_id=" . $callback['id']);
+    file_get_contents("https://api.telegram.org/bot" . getenv("TELEGRAM_TOKEN") . "/answerCallbackQuery?callback_query_id=" . $callback['id']);
     exit;
 }
 
@@ -110,14 +110,14 @@ function sendPaginatedPosts($chatId, int $page = 1){
         // Кнопка "Назад", если страница больше 1
         $keyboard[] = [
             'text' => '◀️ Назад',
-            'callback_data' => '/get?page_' . ($page - 1),
+            'callback_data' => 'get?page_' . ($page - 1),
         ];
     }
     if ($page < $data['total_pages']) {
         // Кнопка "Вперед", если есть еще страницы
         $keyboard[] = [
             'text' => 'Вперед ▶️',
-            'callback_data' => '/get?page_' . ($page + 1),
+            'callback_data' => 'get_page_' . ($page + 1),
         ];
     }
     if (!empty($keyboard)) {
