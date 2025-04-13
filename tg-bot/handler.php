@@ -84,22 +84,7 @@ function sendPaginatedPosts($chatId, int $page = 1){
     if (isset($data['posts'])) {
         try {
             foreach ($data['posts'] as $post) {
-                $author = htmlspecialchars($post['author']);
-                $dateString = htmlspecialchars($post['date']);
-                $date = new DateTime($dateString);
-                $date = $date->format('j F Y, H:i');
-                $likes = htmlspecialchars($post['score']);
-                $comments = htmlspecialchars($post['comment_count']);
-                $content = htmlspecialchars($post['content']);
-                if (mb_strlen($content) > 500) {
-                    $content = mb_substr($content, 0, 500) . "…";
-                }
-                $content = "```\n" . htmlspecialchars($post['content']) . "\n```";
-                $reply .= "👤 *{$author}*\n";
-                $reply .= "📅 _{$date}_\n";
-                $reply .= "{$content}";
-                $reply .= "*Лайков:* " . $likes . "\n";
-                $reply .= "*Комментариев:* " . $comments . "\n\n";
+               $reply .= formAMessage($post);
             }
         } catch (Exception $e) {
             $reply = "❌ Не удалось получить записи." . $e->getMessage();
