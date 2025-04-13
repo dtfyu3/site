@@ -328,11 +328,8 @@ function putPost($user_id, $content)
     } finally {
         $conn = null;
     }
-    $message = "📢 *Новая запись на сайте!* \n\n" .
-        "🔹 *Автор:* $author_name\n" .
-        "🔗 *Текст:* \n```\n$content\n```";
-        echo json_encode($response);
-    // sendTelegramMessage('451508739', $message);
+    $message = "📢 *Новая запись на сайте!* \n\n" . formAMessage($response['data']);
+    echo json_encode($response);
     foreach ($subscribers as $chatId) {
         sendTelegramMessage($chatId, $message);
     }
