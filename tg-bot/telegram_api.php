@@ -31,3 +31,24 @@ function sendTelegramMessage($chatId, $text, $parseMode = 'Markdown', $keyboard 
     curl_close($ch);
     return $response;
 }
+function formAMessage($post)
+{
+    $reply = "";
+    $author = htmlspecialchars($post['author'] ?? null);
+    $dateString = htmlspecialchars($post['date'] ?? null);
+    $date = new DateTime($dateString) ?? null;
+    $date = $date->format('j F Y, H:i') ?? null;
+    $likes = htmlspecialchars($post['score'] ?? null);
+    $comments = htmlspecialchars($post['comment_count'] ?? null);
+    $content = htmlspecialchars($post['content'] ?? null);
+    if (mb_strlen($content) > 500) {
+        $content = mb_substr($content, 0, 500) . "…";
+    }
+    $content = "```\n" . htmlspecialchars($post['content']) . "\n```";
+    $reply .= "👤 *{$author}*\n";
+    $reply .= "📅 _{$date}_\n";
+    $reply .= "{$content}";
+    $reply .= "*Рейтинг:* " . $likes . "\n";
+    $reply .= "*Комментариев:* " . $comments . "\n\n";
+    return $reply;
+}
