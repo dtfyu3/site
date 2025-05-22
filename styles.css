@@ -272,11 +272,6 @@ span {
     margin-bottom: 10px;
 }
 
-.comments_list button {
-    background-color: rgb(206, 200, 200);
-    ;
-}
-
 #submit_comment {
     /* margin-bottom: 10px; */
     margin: 0 auto;
