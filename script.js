@@ -22,25 +22,46 @@ function createSpinner(container) {
             container.prepend(spinner_container);
         }
     }
+
 }
 function removeSpinner() {
     if (document.getElementById('loading-spinner')) document.getElementById('loading-spinner').remove();
 }
-function closeComments(currentScroll) {
-    const onScroll = () => {
-        if (window.scrollY === currentScroll) {
-            window.removeEventListener('scroll', onScroll); // Удаляем обработчик события
-            document.getElementById('comments_section').classList.add('hidden'); // Скрываем секцию
-            comments_list.innerHTML = ''; // Очищаем список комментариев
-        }
-    };
+function closeComments(currentScroll, card) {
+    // const onScroll = () => {
+    //     if (window.scrollY === currentScroll) {
+    //         window.removeEventListener('scroll', onScroll); // Удаляем обработчик события
+    //         document.getElementById('comments_section').classList.add('hidden'); // Скрываем секцию
+    //         comments_list.innerHTML = ''; // Очищаем список комментариев
+    //     }
+    // };
 
-    // Добавляем обработчик события scroll
-    window.addEventListener('scroll', onScroll);
-    window.scrollTo({
-        top: currentScroll,
-        behavior: 'smooth'
-    });
+    // // Добавляем обработчик события scroll
+    // window.addEventListener('scroll', onScroll);
+    // window.scrollTo({
+    //     top: currentScroll,
+    //     behavior: 'smooth'
+    // });
+    hideCards(card, isCommentOpen);
+    isCommentOpen = false;
+    document.getElementById('comments_section').classList.add('hidden');
+    comments_list.innerHTML = '';
+    
+    card.scrollIntoView();
+    highlightCard(card);
+    // window.scrollTo({ top: currentScroll - (document.documentElement.clientHeight - card.clientHeight)});
+    // const yOffset = window.pageYOffset - card.getBoundingClientRect().top;
+    // const yOffset = currentScroll;
+    // const clientHeight = document.documentElement.clientHeight;
+    // const cardHeight = card.clientHeight;
+    // window.scrollTo({ top: yOffset - (clientHeight - cardHeight) });
+}
+function highlightCard(card) {
+    card.classList.add('highlighted');
+    const t = parseFloat(window.getComputedStyle(card).transition.split(' ')[1]);
+    setTimeout(() => {
+        card.classList.remove('highlighted');
+    }, t * 1000);
 }
 function hideCards(card, isCommentOpen) {
     let sibling = card.closest('li').nextElementSibling;
@@ -109,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 closeModal();
             }
         });
-        
+
         let name = document.querySelector('#username span');
         name.innerHTML = window.localStorage.getItem("userName");
         avatarIcon.src = '/images/user.png';
@@ -286,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let comment_counter = '';
         let comment_count = '';
         let [dateStr, time] = post.date.split(' ');
-        if(time.indexOf('+')) time = time.split('+')[0];
+        if (time.indexOf('+')) time = time.split('+')[0];
         var date = new Date(dateStr + 'T' + time);
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -403,12 +424,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         if (!isCommentOpen) {
+            card.scrollIntoView();
             currentScroll = window.scrollY;
             hideCards(card, isCommentOpen);
             document.getElementById('comments_section').classList.remove('hidden');
             comments_list.classList.remove('hidden');
             fetchComments(card.dataset['id'], false);
-            
+
             isCommentOpen = true;
             // scrollIfNeeded();
             // if(card.querySelector('.comment_count span').textContent > 0){
@@ -424,17 +446,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // }
         }
         else {
-            hideCards(card, isCommentOpen);
-            isCommentOpen = false;
-            // setTimeout(() => {
-            //     window.scrollTo({
-            //         top: currentScroll,
-            //         behavior: 'smooth' 
-            //     });
-            // }, 0);
-            document.getElementById('comments_section').classList.add('hidden');
-            comments_list.innerHTML = '';
-            closeComments(currentScroll);
+            
+            closeComments(currentScroll, card);
         }
 
     };
