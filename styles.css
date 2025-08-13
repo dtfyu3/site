@@ -186,7 +186,7 @@ li:last-child .card {
     max-width: 20vw;
     min-width: 300px;
     padding: 10px;
-    transition: all 0.2s ease-in-out;
+    transition: box-shadow 0.5s ease-in-out;
 }
 
 .content {
@@ -221,6 +221,7 @@ li:last-child .card {
     padding-top: 10px;
     display: block;
     width: 90%;
+    transition: all 0.5s ease-in-out;
     /* height: 100%; */
 }
 
@@ -271,6 +272,8 @@ span {
     margin-left: 10px;
     margin-bottom: 10px;
 }
+
+
 
 #submit_comment {
     /* margin-bottom: 10px; */
@@ -1205,5 +1208,9 @@ input[type="submit"]:hover {
 }
 
 .hidden {
-    display: none;
+    opacity: 0;
+    /* display: none; */
+}
+.highlighted{
+    box-shadow: 0 0 20px 0px #e7e7e7;
 }
