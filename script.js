@@ -276,6 +276,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Error:', data.error);
                 return [];
             }
+            if (currentPage) {
+                document.querySelector('#pagination_container ul a.current').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'nearest'
+                })
         } catch (error) {
             console.error('Error:', error);
             return [];
